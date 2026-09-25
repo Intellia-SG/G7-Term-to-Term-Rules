@@ -1,1041 +1,656 @@
 // src/data/questionBank.js
-// 100 Comprehensive Questions for MoneyQuest across 10 Themed Worlds (Grade 2-5 Math)
+// Procedural question bank generator for RuleQuest (Grade 7 Term-to-Term Rules)
+// 100 Comprehensive Questions across 10 Themed Worlds
+// Strictly enforces integer cleanliness, 4 unique options, and platform headline misconceptions.
 
-import { formatMoney } from '../utils/moneyMath.js';
+import { WORLDS } from '../config/worlds.config.js';
+import {
+  applyOperation,
+  applyRule,
+  generateSequence,
+  reverseOperation,
+  reverseRule,
+  reverseRuleWrongOrder,
+  applyReversedRule,
+  verifyRuleAgainstSequence,
+  classifyRuleType,
+  generateFibonacciTypeSequence,
+  formatRuleString,
+  isCleanInteger,
+} from '../utils/ruleMachineMath.js';
 
-export const DISTRICTS = [
-  { id: 0, name: 'Coin Corner',        icon: '🪙', boss: { name: 'Coin Keeper',     emoji: '🪙', reward: 'Coin Expert Badge 🪙' } },
-  { id: 1, name: 'Market Stall',       icon: '🍎', boss: { name: 'Stall Boss',      emoji: '🍉', reward: 'Market Star Badge 🍎' } },
-  { id: 2, name: 'Note Bank',          icon: '💵', boss: { name: 'Banker Boss',     emoji: '🏦', reward: 'Note Master Badge 💵' } },
-  { id: 3, name: 'Mixed Money Mart',   icon: '🛍️', boss: { name: 'Market Boss',     emoji: '🛒', reward: 'Mart Champion Badge 🛍️' } },
-  { id: 4, name: 'Cents to Dollars',   icon: '💱', boss: { name: 'Exchange Boss',   emoji: '💱', reward: 'Converter Badge 💱' } },
-  { id: 5, name: 'Which is More?',     icon: '⚖️', boss: { name: 'Scale Boss',      emoji: '⚖️', reward: 'Comparison Badge ⚖️' } },
-  { id: 6, name: 'Adding Money',       icon: '➕', boss: { name: 'Calculator Boss', emoji: '🧮', reward: 'Adding Pro Badge ➕' } },
-  { id: 7, name: 'Making Change',      icon: '🔄', boss: { name: 'Change Boss',     emoji: '💸', reward: 'Change Champion Badge 🔄' } },
-  { id: 8, name: 'Word Problem Market',icon: '📝', boss: { name: 'Problem Boss',    emoji: '🧩', reward: 'Problem Solver Badge 📝' } },
-  { id: 9, name: 'Money Master',       icon: '👑', boss: { name: 'Money King',      emoji: '👑', reward: 'Money Master Badge 👑' } },
-];
+// Export DISTRICTS mapped from WORLDS for KingdomMap and PlayPhase
+export const DISTRICTS = WORLDS.map((w) => ({
+  id: w.id,
+  name: w.name,
+  icon: w.emoji,
+  boss: w.boss,
+}));
 
-const RAW_QUESTIONS = [
-  // ── WORLD 0: COIN CORNER (Questions 1 - 10: 5¢ and 10¢ coins) ────────────────
-  {
-    id: 1, districtId: 0, category: 'COUNT COINS', visual: 'coins',
-    questionText: "Oliver has 4 ten-cent coins and 2 five-cent coins. How much money does he have in total?",
-    options: ['50¢', '45¢', '40¢', '55¢'],
-    correctAnswer: '50¢',
-    explanation: "4 × 10¢ = 40¢. 2 × 5¢ = 10¢. Adding them together: 40¢ + 10¢ = 50¢.",
-    hint1: "Count the 10¢ coins first: 10, 20, 30, 40...",
-    hint2: "Now add the two 5¢ coins (10¢). 40¢ + 10¢ = 50¢.",
-    visualData: { tens: 4, fives: 2, total: 50 }
-  },
-  {
-    id: 2, districtId: 0, category: 'COUNT COINS', visual: 'coins',
-    questionText: "Emma has 3 ten-cent coins and 3 five-cent coins. How much does she have?",
-    options: ['45¢', '35¢', '50¢', '40¢'],
-    correctAnswer: '45¢',
-    explanation: "3 × 10¢ = 30¢. 3 × 5¢ = 15¢. 30¢ + 15¢ = 45¢.",
-    hint1: "3 ten-cent coins equal 30¢.",
-    hint2: "3 five-cent coins equal 15¢. 30¢ + 15¢ = 45¢.",
-    visualData: { tens: 3, fives: 3, total: 45 }
-  },
-  {
-    id: 3, districtId: 0, category: 'COIN VALUE', visual: 'coins',
-    questionText: "How many 5¢ coins make a 50¢ amount?",
-    options: ['10', '5', '8', '12'],
-    correctAnswer: '10',
-    explanation: "50 ÷ 5 = 10. It takes ten 5¢ coins to make 50¢.",
-    hint1: "Count by 5s up to 50.",
-    hint2: "5, 10, 15, 20, 25, 30, 35, 40, 45, 50 — that's 10 coins.",
-    visualData: { fives: 10, total: 50 }
-  },
-  {
-    id: 4, districtId: 0, category: 'COUNT COINS', visual: 'coins',
-    questionText: "Oliver puts 5 ten-cent coins in his piggy bank. How much did he save?",
-    options: ['50¢', '55¢', '45¢', '$1.00'],
-    correctAnswer: '50¢',
-    explanation: "5 × 10¢ = 50¢.",
-    hint1: "Count by 10s: 10, 20, 30, 40, 50.",
-    hint2: "5 coins of 10 cents equal 50¢.",
-    visualData: { tens: 5, total: 50 }
-  },
-  {
-    id: 5, districtId: 0, category: 'COIN VALUE', visual: 'coins',
-    questionText: "Which is equal to 30¢?",
-    options: ['3 ten-cent coins', '2 five-cent coins', '4 ten-cent coins', '5 five-cent coins'],
-    correctAnswer: '3 ten-cent coins',
-    explanation: "3 × 10¢ = 30¢.",
-    hint1: "10¢ + 10¢ + 10¢ = 30¢.",
-    hint2: "3 coins of 10¢ make exactly 30¢.",
-    visualData: { tens: 3, total: 30 }
-  },
-  {
-    id: 6, districtId: 0, category: 'COUNT COINS', visual: 'coins',
-    questionText: "Sophie has 6 five-cent coins. How much money is that?",
-    options: ['30¢', '25¢', '35¢', '20¢'],
-    correctAnswer: '30¢',
-    explanation: "6 × 5¢ = 30¢.",
-    hint1: "Multiply 6 by 5.",
-    hint2: "6 × 5 = 30 cents.",
-    visualData: { fives: 6, total: 30 }
-  },
-  {
-    id: 7, districtId: 0, category: 'COUNT COINS', visual: 'coins',
-    questionText: "James has 2 ten-cent coins and 4 five-cent coins. How much does he have?",
-    options: ['40¢', '30¢', '45¢', '35¢'],
-    correctAnswer: '40¢',
-    explanation: "2 × 10¢ = 20¢. 4 × 5¢ = 20¢. 20¢ + 20¢ = 40¢.",
-    hint1: "2 ten-cent coins is 20¢. 4 five-cent coins is 20¢.",
-    hint2: "20¢ + 20¢ = 40¢.",
-    visualData: { tens: 2, fives: 4, total: 40 }
-  },
-  {
-    id: 8, districtId: 0, category: 'MAKE AMOUNT', visual: 'coins',
-    questionText: "What is the fewest number of coins needed to make 25¢ using only 5¢ and 10¢ coins?",
-    options: ['3 coins (two 10¢, one 5¢)', '5 coins (five 5¢)', '4 coins', '2 coins'],
-    correctAnswer: '3 coins (two 10¢, one 5¢)',
-    explanation: "Use two 10¢ coins (20¢) and one 5¢ coin (5¢) for a total of 3 coins.",
-    hint1: "Use the largest coins possible first.",
-    hint2: "Two 10¢ coins make 20¢, plus one 5¢ coin makes 25¢.",
-    visualData: { tens: 2, fives: 1, total: 25 }
-  },
-  {
-    id: 9, districtId: 0, category: 'COUNT COINS', visual: 'coins',
-    questionText: "Lucas has 7 ten-cent coins and 1 five-cent coin. What is the total value?",
-    options: ['75¢', '70¢', '80¢', '65¢'],
-    correctAnswer: '75¢',
-    explanation: "7 × 10¢ = 70¢. 70¢ + 5¢ = 75¢.",
-    hint1: "7 × 10¢ = 70¢.",
-    hint2: "Add 5¢ more: 70¢ + 5¢ = 75¢.",
-    visualData: { tens: 7, fives: 1, total: 75 }
-  },
-  {
-    id: 10, districtId: 0, category: 'COUNT COINS', visual: 'coins',
-    questionText: "Mia has 8 five-cent coins. How much money does she have?",
-    options: ['40¢', '45¢', '35¢', '50¢'],
-    correctAnswer: '40¢',
-    explanation: "8 × 5¢ = 40¢.",
-    hint1: "Count by 5s eight times.",
-    hint2: "8 × 5 = 40 cents.",
-    visualData: { fives: 8, total: 40 }
-  },
-
-  // ── WORLD 1: MARKET STALL (Questions 11 - 20: 20¢ & 50¢ coins) ───────────────
-  {
-    id: 11, districtId: 1, category: 'COUNT COINS', visual: 'coins',
-    questionText: "Oliver has 2 twenty-cent coins and 1 fifty-cent coin. How much is that altogether?",
-    options: ['90¢', '80¢', '70¢', '$1.00'],
-    correctAnswer: '90¢',
-    explanation: "2 × 20¢ = 40¢. 40¢ + 50¢ = 90¢.",
-    hint1: "Start with the 50¢ coin.",
-    hint2: "50¢ + 20¢ + 20¢ = 90¢.",
-    visualData: { fifties: 1, twenties: 2, total: 90 }
-  },
-  {
-    id: 12, districtId: 1, category: 'COUNT COINS', visual: 'coins',
-    questionText: "Emma has 3 twenty-cent coins. How much does she have?",
-    options: ['60¢', '50¢', '80¢', '40¢'],
-    correctAnswer: '60¢',
-    explanation: "3 × 20¢ = 60¢.",
-    hint1: "20 + 20 + 20 = 60.",
-    hint2: "Three 20¢ coins make 60¢.",
-    visualData: { twenties: 3, total: 60 }
-  },
-  {
-    id: 13, districtId: 1, category: 'COUNT COINS', visual: 'coins',
-    questionText: "Noah has 2 fifty-cent coins. How much money does he have?",
-    options: ['$1.00', '90¢', '80¢', '$1.50'],
-    correctAnswer: '$1.00',
-    explanation: "50¢ + 50¢ = 100¢ = $1.00.",
-    hint1: "Two 50¢ coins make 100 cents.",
-    hint2: "100 cents equals $1.00.",
-    visualData: { fifties: 2, total: 100 }
-  },
-  {
-    id: 14, districtId: 1, category: 'COUNT COINS', visual: 'coins',
-    questionText: "Ava has 1 fifty-cent coin, 1 twenty-cent coin, and 1 ten-cent coin. How much total?",
-    options: ['80¢', '70¢', '90¢', '85¢'],
-    correctAnswer: '80¢',
-    explanation: "50¢ + 20¢ + 10¢ = 80¢.",
-    hint1: "Add 50¢ + 20¢ = 70¢.",
-    hint2: "Add 10¢ more: 70¢ + 10¢ = 80¢.",
-    visualData: { fifties: 1, twenties: 1, tens: 1, total: 80 }
-  },
-  {
-    id: 15, districtId: 1, category: 'COIN EQUIVALENCE', visual: 'coins',
-    questionText: "How many 20¢ coins make $1.00?",
-    options: ['5', '4', '6', '10'],
-    correctAnswer: '5',
-    explanation: "100 ÷ 20 = 5. Five 20¢ coins equal $1.00.",
-    hint1: "$1.00 is 100 cents.",
-    hint2: "20, 40, 60, 80, 100 — that's 5 coins.",
-    visualData: { twenties: 5, total: 100 }
-  },
-  {
-    id: 16, districtId: 1, category: 'COUNT COINS', visual: 'coins',
-    questionText: "Ethan has 4 twenty-cent coins. How much money is that?",
-    options: ['80¢', '60¢', '70¢', '90¢'],
-    correctAnswer: '80¢',
-    explanation: "4 × 20¢ = 80¢.",
-    hint1: "4 × 20 = 80.",
-    hint2: "4 coins of 20 cents equal 80¢.",
-    visualData: { twenties: 4, total: 80 }
-  },
-  {
-    id: 17, districtId: 1, category: 'COUNT COINS', visual: 'coins',
-    questionText: "Grace has 1 fifty-cent coin and 3 twenty-cent coins. What is her total?",
-    options: ['$1.10', '$1.00', '90¢', '$1.20'],
-    correctAnswer: '$1.10',
-    explanation: "50¢ + (3 × 20¢) = 50¢ + 60¢ = 110¢ = $1.10.",
-    hint1: "3 twenty-cent coins make 60¢.",
-    hint2: "50¢ + 60¢ = 110¢, which is $1.10.",
-    visualData: { fifties: 1, twenties: 3, total: 110 }
-  },
-  {
-    id: 18, districtId: 1, category: 'MAKE AMOUNT', visual: 'coins',
-    questionText: "Which set of coins makes exactly 70¢?",
-    options: ['One 50¢ and one 20¢', 'Three 20¢ coins', 'Two 50¢ coins', 'Four 20¢ coins'],
-    correctAnswer: 'One 50¢ and one 20¢',
-    explanation: "50¢ + 20¢ = 70¢.",
-    hint1: "50 + 20 = 70.",
-    hint2: "A 50¢ coin and a 20¢ coin make 70¢.",
-    visualData: { fifties: 1, twenties: 1, total: 70 }
-  },
-  {
-    id: 19, districtId: 1, category: 'COUNT COINS', visual: 'coins',
-    questionText: "Henry has 2 fifty-cent coins and 2 twenty-cent coins. How much money is that?",
-    options: ['$1.40', '$1.20', '$1.50', '$1.00'],
-    correctAnswer: '$1.40',
-    explanation: "(2 × 50¢) + (2 × 20¢) = 100¢ + 40¢ = $1.40.",
-    hint1: "Two 50¢ coins make $1.00.",
-    hint2: "Two 20¢ coins make 40¢. $1.00 + 40¢ = $1.40.",
-    visualData: { fifties: 2, twenties: 2, total: 140 }
-  },
-  {
-    id: 20, districtId: 1, category: 'COUNT COINS', visual: 'coins',
-    questionText: "Lily has 5 twenty-cent coins and 1 fifty-cent coin. What is the total?",
-    options: ['$1.50', '$1.40', '$1.20', '$1.60'],
-    correctAnswer: '$1.50',
-    explanation: "(5 × 20¢) + 50¢ = 100¢ + 50¢ = 150¢ = $1.50.",
-    hint1: "5 twenty-cent coins make $1.00.",
-    hint2: "$1.00 + 50¢ = $1.50.",
-    visualData: { twenties: 5, fifties: 1, total: 150 }
-  },
-
-  // ── WORLD 2: NOTE BANK (Questions 21 - 30: $1, $2, $5, $10 Notes) ────────────
-  {
-    id: 21, districtId: 2, category: 'COUNT NOTES', visual: 'notes',
-    questionText: "Oliver counts 3 five-dollar notes ($5). How much money does he have?",
-    options: ['$15.00', '$10.00', '$12.00', '$20.00'],
-    correctAnswer: '$15.00',
-    explanation: "3 × $5 = $15.00.",
-    hint1: "Count by 5s: 5, 10, 15.",
-    hint2: "Three $5 notes equal $15.00.",
-    visualData: { fives: 3, total: 1500 }
-  },
-  {
-    id: 22, districtId: 2, category: 'COUNT NOTES', visual: 'notes',
-    questionText: "Emma has 4 two-dollar notes ($2). How much does she have?",
-    options: ['$8.00', '$6.00', '$10.00', '$4.00'],
-    correctAnswer: '$8.00',
-    explanation: "4 × $2 = $8.00.",
-    hint1: "4 × 2 = 8.",
-    hint2: "Four $2 notes equal $8.00.",
-    visualData: { twos: 4, total: 800 }
-  },
-  {
-    id: 23, districtId: 2, category: 'COUNT NOTES', visual: 'notes',
-    questionText: "Jack has 2 ten-dollar notes ($10) and 1 five-dollar note ($5). What is his total?",
-    options: ['$25.00', '$20.00', '$30.00', '$15.00'],
-    correctAnswer: '$25.00',
-    explanation: "(2 × $10) + $5 = $20 + $5 = $25.00.",
-    hint1: "Two $10 notes make $20.",
-    hint2: "Add $5 to get $25.00.",
-    visualData: { tensNotes: 2, fiveNotes: 1, total: 2500 }
-  },
-  {
-    id: 24, districtId: 2, category: 'NOTE VALUE', visual: 'notes',
-    questionText: "How many $2 notes make $10?",
-    options: ['5', '4', '6', '10'],
-    correctAnswer: '5',
-    explanation: "10 ÷ 2 = 5. Five $2 notes make $10.",
-    hint1: "Count by 2s up to 10.",
-    hint2: "2, 4, 6, 8, 10 — that is 5 notes.",
-    visualData: { twos: 5, total: 1000 }
-  },
-  {
-    id: 25, districtId: 2, category: 'COUNT NOTES', visual: 'notes',
-    questionText: "Chloe has 1 ten-dollar note ($10), 1 five-dollar note ($5), and 2 two-dollar notes ($2). Total?",
-    options: ['$19.00', '$17.00', '$20.00', '$18.00'],
-    correctAnswer: '$19.00',
-    explanation: "$10 + $5 + (2 × $2) = $15 + $4 = $19.00.",
-    hint1: "$10 + $5 = $15.",
-    hint2: "Two $2 notes is $4. $15 + $4 = $19.00.",
-    visualData: { tensNotes: 1, fiveNotes: 1, twos: 2, total: 1900 }
-  },
-  {
-    id: 26, districtId: 2, category: 'NOTE VALUE', visual: 'notes',
-    questionText: "How many $5 notes are needed to make $20?",
-    options: ['4', '5', '3', '2'],
-    correctAnswer: '4',
-    explanation: "20 ÷ 5 = 4.",
-    hint1: "Count by 5s: 5, 10, 15, 20.",
-    hint2: "That is 4 notes.",
-    visualData: { fiveNotes: 4, total: 2000 }
-  },
-  {
-    id: 27, districtId: 2, category: 'COUNT NOTES', visual: 'notes',
-    questionText: "Ryan has 5 two-dollar notes ($2) and 1 ten-dollar note ($10). How much money is that?",
-    options: ['$20.00', '$15.00', '$25.00', '$12.00'],
-    correctAnswer: '$20.00',
-    explanation: "(5 × $2) + $10 = $10 + $10 = $20.00.",
-    hint1: "5 × $2 = $10.",
-    hint2: "$10 + $10 = $20.00.",
-    visualData: { twos: 5, tensNotes: 1, total: 2000 }
-  },
-  {
-    id: 28, districtId: 2, category: 'MAKE AMOUNT', visual: 'notes',
-    questionText: "Which combination makes exactly $16.00?",
-    options: ['One $10, one $5, one $1 coin', 'Three $5 notes', 'Two $10 notes', 'Eight $1 coins'],
-    correctAnswer: 'One $10, one $5, one $1 coin',
-    explanation: "$10 + $5 + $1 = $16.00.",
-    hint1: "Look for numbers that add up to 16.",
-    hint2: "10 + 5 + 1 = 16.",
-    visualData: { tensNotes: 1, fiveNotes: 1, ones: 1, total: 1600 }
-  },
-  {
-    id: 29, districtId: 2, category: 'COUNT NOTES', visual: 'notes',
-    questionText: "Ella has 3 ten-dollar notes ($10). How much does she have?",
-    options: ['$30.00', '$20.00', '$35.00', '$25.00'],
-    correctAnswer: '$30.00',
-    explanation: "3 × $10 = $30.00.",
-    hint1: "Count by 10s three times.",
-    hint2: "10, 20, 30.",
-    visualData: { tensNotes: 3, total: 3000 }
-  },
-  {
-    id: 30, districtId: 2, category: 'COUNT NOTES', visual: 'notes',
-    questionText: "James has 6 two-dollar notes ($2). What is the total value?",
-    options: ['$12.00', '$10.00', '$14.00', '$8.00'],
-    correctAnswer: '$12.00',
-    explanation: "6 × $2 = $12.00.",
-    hint1: "6 × 2 = 12.",
-    hint2: "Six $2 notes equal $12.00.",
-    visualData: { twos: 6, total: 1200 }
-  },
-
-  // ── WORLD 3: MIXED MONEY MART (Questions 31 - 40: Mixed Coins & Notes) ───────
-  {
-    id: 31, districtId: 3, category: 'MIXED MONEY', visual: 'mixed',
-    questionText: "Oliver has one $2 coin, two 50¢ coins, and one 20¢ coin. Total amount?",
-    options: ['$3.20', '$3.00', '$2.70', '$3.50'],
-    correctAnswer: '$3.20',
-    explanation: "$2.00 + (2 × 50¢) + 20¢ = $2.00 + $1.00 + 20¢ = $3.20.",
-    hint1: "Two 50¢ coins make $1.00.",
-    hint2: "$2.00 + $1.00 + 20¢ = $3.20.",
-    visualData: { twos: 1, fifties: 2, twenties: 1, total: 320 }
-  },
-  {
-    id: 32, districtId: 3, category: 'MIXED MONEY', visual: 'mixed',
-    questionText: "Emma has one $5 note, one $1 coin, and three 10¢ coins. How much in her purse?",
-    options: ['$6.30', '$6.20', '$5.30', '$6.50'],
-    correctAnswer: '$6.30',
-    explanation: "$5.00 + $1.00 + (3 × 10¢) = $6.00 + 30¢ = $6.30.",
-    hint1: "Add the dollars first: $5 + $1 = $6.",
-    hint2: "Then add the cents: 3 × 10¢ = 30¢. Total is $6.30.",
-    visualData: { fiveNotes: 1, ones: 1, tens: 3, total: 630 }
-  },
-  {
-    id: 33, districtId: 3, category: 'MIXED MONEY', visual: 'mixed',
-    questionText: "Noah's wallet has one $2 coin, three 20¢ coins, and one 5¢ coin. How much is inside?",
-    options: ['$2.65', '$2.60', '$2.55', '$2.75'],
-    correctAnswer: '$2.65',
-    explanation: "$2.00 + (3 × 20¢) + 5¢ = $2.00 + 60¢ + 5¢ = $2.65.",
-    hint1: "Three 20¢ coins make 60¢.",
-    hint2: "$2.00 + 60¢ + 5¢ = $2.65.",
-    visualData: { twos: 1, twenties: 3, fives: 1, total: 265 }
-  },
-  {
-    id: 34, districtId: 3, category: 'MIXED MONEY', visual: 'mixed',
-    questionText: "Ava has one $5 note, two 50¢ coins, and four 10¢ coins. How much does she have?",
-    options: ['$6.40', '$6.50', '$5.90', '$6.20'],
-    correctAnswer: '$6.40',
-    explanation: "$5.00 + (2 × 50¢) + (4 × 10¢) = $5.00 + $1.00 + 40¢ = $6.40.",
-    hint1: "Two 50¢ coins make $1.00. $5 + $1 = $6.00.",
-    hint2: "Add 40¢ to get $6.40.",
-    visualData: { fiveNotes: 1, fifties: 2, tens: 4, total: 640 }
-  },
-  {
-    id: 35, districtId: 3, category: 'MIXED MONEY', visual: 'mixed',
-    questionText: "Lucas has three $1 coins, one 50¢ coin, and one 20¢ coin. Total amount?",
-    options: ['$3.70', '$3.50', '$3.60', '$4.00'],
-    correctAnswer: '$3.70',
-    explanation: "$3.00 + 50¢ + 20¢ = $3.70.",
-    hint1: "3 dollars is $3.00.",
-    hint2: "50¢ + 20¢ = 70¢. Total is $3.70.",
-    visualData: { ones: 3, fifties: 1, twenties: 1, total: 370 }
-  },
-  {
-    id: 36, districtId: 3, category: 'MIXED MONEY', visual: 'mixed',
-    questionText: "Sophie has one $10 note and three 50¢ coins. How much money is that?",
-    options: ['$11.50', '$11.00', '$12.00', '$10.50'],
-    correctAnswer: '$11.50',
-    explanation: "$10.00 + (3 × 50¢) = $10.00 + $1.50 = $11.50.",
-    hint1: "3 fifty-cent coins is $1.50.",
-    hint2: "$10.00 + $1.50 = $11.50.",
-    visualData: { tensNotes: 1, fifties: 3, total: 1150 }
-  },
-  {
-    id: 37, districtId: 3, category: 'MIXED MONEY', visual: 'mixed',
-    questionText: "Ethan has two $2 coins, one 20¢ coin, and two 5¢ coins. What is his total?",
-    options: ['$4.30', '$4.20', '$4.25', '$4.40'],
-    correctAnswer: '$4.30',
-    explanation: "(2 × $2) + 20¢ + (2 × 5¢) = $4.00 + 20¢ + 10¢ = $4.30.",
-    hint1: "Two $2 coins = $4.00.",
-    hint2: "20¢ + 10¢ = 30¢. Total is $4.30.",
-    visualData: { twos: 2, twenties: 1, fives: 2, total: 430 }
-  },
-  {
-    id: 38, districtId: 3, category: 'MIXED MONEY', visual: 'mixed',
-    questionText: "Grace has one $5 note and four 20¢ coins. How much money does she have?",
-    options: ['$5.80', '$5.60', '$6.00', '$5.40'],
-    correctAnswer: '$5.80',
-    explanation: "$5.00 + (4 × 20¢) = $5.00 + 80¢ = $5.80.",
-    hint1: "4 × 20¢ = 80¢.",
-    hint2: "$5.00 + 80¢ = $5.80.",
-    visualData: { fiveNotes: 1, twenties: 4, total: 580 }
-  },
-  {
-    id: 39, districtId: 3, category: 'MIXED MONEY', visual: 'mixed',
-    questionText: "Henry has one $2 coin, one $1 coin, and six 10¢ coins. What is his total?",
-    options: ['$3.60', '$3.50', '$3.70', '$4.00'],
-    correctAnswer: '$3.60',
-    explanation: "$2.00 + $1.00 + (6 × 10¢) = $3.00 + 60¢ = $3.60.",
-    hint1: "$2 + $1 = $3.00.",
-    hint2: "6 × 10¢ = 60¢. Total is $3.60.",
-    visualData: { twos: 1, ones: 1, tens: 6, total: 360 }
-  },
-  {
-    id: 40, districtId: 3, category: 'MIXED MONEY', visual: 'mixed',
-    questionText: "Lily has two $1 coins, two 20¢ coins, and one 5¢ coin. Total?",
-    options: ['$2.45', '$2.40', '$2.50', '$2.35'],
-    correctAnswer: '$2.45',
-    explanation: "$2.00 + 40¢ + 5¢ = $2.45.",
-    hint1: "Two $1 coins = $2.00.",
-    hint2: "40¢ + 5¢ = 45¢. Total is $2.45.",
-    visualData: { ones: 2, twenties: 2, fives: 1, total: 245 }
-  },
-
-  // ── WORLD 4: CENTS TO DOLLARS (Questions 41 - 50: 100¢ = $1 Conversion) ─────
-  {
-    id: 41, districtId: 4, category: 'CONVERSION', visual: 'conversion',
-    questionText: "How many dollars is 250 cents?",
-    options: ['$2.50', '$25.00', '$0.25', '$2.05'],
-    correctAnswer: '$2.50',
-    explanation: "250 cents = 200 cents + 50 cents = $2.50.",
-    hint1: "100 cents = $1.00.",
-    hint2: "200 cents is $2.00, plus 50¢ = $2.50.",
-    visualData: { cents: 250, dollars: 2.50 }
-  },
-  {
-    id: 42, districtId: 4, category: 'CONVERSION', visual: 'conversion',
-    questionText: "$3.75 is the same as how many cents?",
-    options: ['375 cents', '37 cents', '3750 cents', '75 cents'],
-    correctAnswer: '375 cents',
-    explanation: "$3.75 = 3 × 100¢ + 75¢ = 375 cents.",
-    hint1: "$3 is 300 cents.",
-    hint2: "300 cents + 75 cents = 375 cents.",
-    visualData: { dollars: 3.75, cents: 375 }
-  },
-  {
-    id: 43, districtId: 4, category: 'CONVERSION', visual: 'conversion',
-    questionText: "What is 400 cents written in dollars?",
-    options: ['$4.00', '$40.00', '$0.40', '$400.00'],
-    correctAnswer: '$4.00',
-    explanation: "400 ÷ 100 = 4. 400 cents = $4.00.",
-    hint1: "Every 100 cents is $1.",
-    hint2: "400 cents = $4.00.",
-    visualData: { cents: 400, dollars: 4.00 }
-  },
-  {
-    id: 44, districtId: 4, category: 'CONVERSION', visual: 'conversion',
-    questionText: "$1.05 is the same as how many cents?",
-    options: ['105 cents', '150 cents', '15 cents', '1005 cents'],
-    correctAnswer: '105 cents',
-    explanation: "$1.00 = 100 cents. 100 + 5 = 105 cents.",
-    hint1: "$1.00 is 100 cents.",
-    hint2: "100 cents + 5 cents = 105 cents.",
-    visualData: { dollars: 1.05, cents: 105 }
-  },
-  {
-    id: 45, districtId: 4, category: 'CONVERSION', visual: 'conversion',
-    questionText: "Express 180 cents in dollars and cents.",
-    options: ['$1.80', '$18.00', '$0.18', '$1.08'],
-    correctAnswer: '$1.80',
-    explanation: "180 cents = 100¢ + 80¢ = $1.80.",
-    hint1: "100 cents is $1.00.",
-    hint2: "100 cents + 80 cents = $1.80.",
-    visualData: { cents: 180, dollars: 1.80 }
-  },
-  {
-    id: 46, districtId: 4, category: 'CONVERSION', visual: 'conversion',
-    questionText: "$5.20 is equal to:",
-    options: ['520 cents', '52 cents', '502 cents', '5200 cents'],
-    correctAnswer: '520 cents',
-    explanation: "$5.20 = 500¢ + 20¢ = 520 cents.",
-    hint1: "$5 = 500 cents.",
-    hint2: "500 + 20 = 520 cents.",
-    visualData: { dollars: 5.20, cents: 520 }
-  },
-  {
-    id: 47, districtId: 4, category: 'CONVERSION', visual: 'conversion',
-    questionText: "How many cents are in $0.95?",
-    options: ['95 cents', '950 cents', '9.5 cents', '59 cents'],
-    correctAnswer: '95 cents',
-    explanation: "$0.95 = 95 cents.",
-    hint1: "There are 0 whole dollars and 95 cents.",
-    hint2: "The amount is 95 cents.",
-    visualData: { dollars: 0.95, cents: 95 }
-  },
-  {
-    id: 48, districtId: 4, category: 'CONVERSION', visual: 'conversion',
-    questionText: "605 cents is equal to:",
-    options: ['$6.05', '$6.50', '$60.50', '$0.65'],
-    correctAnswer: '$6.05',
-    explanation: "605 cents = 600¢ + 5¢ = $6.05.",
-    hint1: "600 cents is $6.00.",
-    hint2: "Add 5 cents: $6.05.",
-    visualData: { cents: 605, dollars: 6.05 }
-  },
-  {
-    id: 49, districtId: 4, category: 'CONVERSION', visual: 'conversion',
-    questionText: "Convert $8.00 into cents.",
-    options: ['800 cents', '80 cents', '8000 cents', '8 cents'],
-    correctAnswer: '800 cents',
-    explanation: "8 × 100 = 800 cents.",
-    hint1: "Multiply 8 by 100.",
-    hint2: "8 × 100 = 800 cents.",
-    visualData: { dollars: 8.00, cents: 800 }
-  },
-  {
-    id: 50, districtId: 4, category: 'CONVERSION', visual: 'conversion',
-    questionText: "315 cents in dollars is:",
-    options: ['$3.15', '$31.50', '$0.35', '$3.50'],
-    correctAnswer: '$3.15',
-    explanation: "315 cents = 300¢ + 15¢ = $3.15.",
-    hint1: "300 cents is $3.00.",
-    hint2: "$3.00 + 15¢ = $3.15.",
-    visualData: { cents: 315, dollars: 3.15 }
-  },
-
-  // ── WORLD 5: WHICH IS MORE? (Questions 51 - 60: Comparing Money) ─────────────
-  {
-    id: 51, districtId: 5, category: 'COMPARE', visual: 'comparison',
-    questionText: "Which is MORE: $1.80 or $1.08?",
-    options: ['$1.80', '$1.08', 'They are equal', 'Cannot tell'],
-    correctAnswer: '$1.80',
-    explanation: "$1.80 is 180 cents. $1.08 is 108 cents. 180 cents is more than 108 cents.",
-    hint1: "Compare the cents part: 80¢ vs 8¢.",
-    hint2: "80 cents is more than 8 cents, so $1.80 is more.",
-    visualData: { amountA: 180, amountB: 108 }
-  },
-  {
-    id: 52, districtId: 5, category: 'COMPARE', visual: 'comparison',
-    questionText: "Which is LESS: 95¢ or $1.05?",
-    options: ['95¢', '$1.05', 'They are equal', 'Cannot tell'],
-    correctAnswer: '95¢',
-    explanation: "95¢ is less than 100¢ ($1.00), while $1.05 is 105¢.",
-    hint1: "Convert both to cents: 95¢ vs 105¢.",
-    hint2: "95 cents is less than 105 cents.",
-    visualData: { amountA: 95, amountB: 105 }
-  },
-  {
-    id: 53, districtId: 5, category: 'COMPARE', visual: 'comparison',
-    questionText: "Put these amounts in order from LEAST to GREATEST: $2.40, 95¢, $1.50.",
-    options: ['95¢ < $1.50 < $2.40', '$1.50 < 95¢ < $2.40', '$2.40 < $1.50 < 95¢', '95¢ < $2.40 < $1.50'],
-    correctAnswer: '95¢ < $1.50 < $2.40',
-    explanation: "In cents: 95¢ < 150¢ < 240¢.",
-    hint1: "Find the smallest amount first (less than a dollar).",
-    hint2: "95¢ is smallest, then $1.50, then $2.40.",
-    visualData: { sorted: ['95¢', '$1.50', '$2.40'] }
-  },
-  {
-    id: 54, districtId: 5, category: 'COMPARE', visual: 'comparison',
-    questionText: "Which is GREATER: three 50¢ coins or two $1 coins?",
-    options: ['Two $1 coins ($2.00)', 'Three 50¢ coins ($1.50)', 'They are equal', 'Cannot tell'],
-    correctAnswer: 'Two $1 coins ($2.00)',
-    explanation: "Three 50¢ coins = $1.50. Two $1 coins = $2.00. $2.00 is greater than $1.50.",
-    hint1: "3 × 50¢ = $1.50.",
-    hint2: "2 × $1 = $2.00. $2.00 is bigger.",
-    visualData: { amountA: 150, amountB: 200 }
-  },
-  {
-    id: 55, districtId: 5, category: 'COMPARE', visual: 'comparison',
-    questionText: "Which is LESS: $3.25 or $3.52?",
-    options: ['$3.25', '$3.52', 'They are equal', 'Cannot tell'],
-    correctAnswer: '$3.25',
-    explanation: "Both have $3. Comparing cents: 25¢ is less than 52¢.",
-    hint1: "Look at the cents: 25¢ vs 52¢.",
-    hint2: "25¢ is smaller, so $3.25 is less.",
-    visualData: { amountA: 325, amountB: 352 }
-  },
-  {
-    id: 56, districtId: 5, category: 'COMPARE', visual: 'comparison',
-    questionText: "Is 200 cents equal to $2.00?",
-    options: ['Yes, exactly equal', 'No, 200 cents is more', 'No, $2.00 is more', 'Cannot tell'],
-    correctAnswer: 'Yes, exactly equal',
-    explanation: "100 cents = $1.00, so 200 cents = $2.00.",
-    hint1: "Divide 200 by 100.",
-    hint2: "200 ÷ 100 = 2. They are exactly equal.",
-    visualData: { amountA: 200, amountB: 200 }
-  },
-  {
-    id: 57, districtId: 5, category: 'COMPARE', visual: 'comparison',
-    questionText: "Which is MORE: six 20¢ coins or one $1 coin?",
-    options: ['Six 20¢ coins ($1.20)', 'One $1 coin ($1.00)', 'They are equal', 'Cannot tell'],
-    correctAnswer: 'Six 20¢ coins ($1.20)',
-    explanation: "6 × 20¢ = 120¢ = $1.20. $1.20 is more than $1.00.",
-    hint1: "Calculate 6 × 20¢.",
-    hint2: "6 × 20¢ = $1.20, which is more than $1.00.",
-    visualData: { amountA: 120, amountB: 100 }
-  },
-  {
-    id: 58, districtId: 5, category: 'COMPARE', visual: 'comparison',
-    questionText: "Which amount is the LARGEST?",
-    options: ['$4.10', '$4.01', '$3.99', '$4.05'],
-    correctAnswer: '$4.10',
-    explanation: "In cents: 410¢ > 405¢ > 401¢ > 399¢.",
-    hint1: "$4.10 is 410 cents.",
-    hint2: "410 cents is larger than 405, 401, or 399 cents.",
-    visualData: { amountA: 410 }
-  },
-  {
-    id: 59, districtId: 5, category: 'COMPARE', visual: 'comparison',
-    questionText: "Which is LESS: four $2 notes or one $10 note?",
-    options: ['Four $2 notes ($8.00)', 'One $10 note ($10.00)', 'They are equal', 'Cannot tell'],
-    correctAnswer: 'Four $2 notes ($8.00)',
-    explanation: "4 × $2 = $8.00. $8.00 is less than $10.00.",
-    hint1: "4 × $2 = $8.00.",
-    hint2: "$8.00 is less than $10.00.",
-    visualData: { amountA: 800, amountB: 1000 }
-  },
-  {
-    id: 60, districtId: 5, category: 'COMPARE', visual: 'comparison',
-    questionText: "Put from GREATEST to LEAST: $5.00, $5.50, $0.55.",
-    options: ['$5.50 > $5.00 > $0.55', '$5.00 > $5.50 > $0.55', '$0.55 > $5.00 > $5.50', '$5.50 > $0.55 > $5.00'],
-    correctAnswer: '$5.50 > $5.00 > $0.55',
-    explanation: "$5.50 (550¢) > $5.00 (500¢) > $0.55 (55¢).",
-    hint1: "550¢ is the largest, followed by 500¢, then 55¢.",
-    hint2: "$5.50 > $5.00 > $0.55.",
-    visualData: { sorted: ['$5.50', '$5.00', '$0.55'] }
-  },
-
-  // ── WORLD 6: ADDING MONEY (Questions 61 - 70: Summing Prices) ────────────────
-  {
-    id: 61, districtId: 6, category: 'ADDITION', visual: 'receipt',
-    questionText: "Oliver buys a pencil for 40¢ and an eraser for 25¢. How much does he spend in total?",
-    options: ['65¢', '60¢', '70¢', '55¢'],
-    correctAnswer: '65¢',
-    explanation: "40¢ + 25¢ = 65¢.",
-    hint1: "Add the tens: 40 + 20 = 60.",
-    hint2: "Add the ones: 60 + 5 = 65¢.",
-    visualData: { itemA: 'Pencil', priceA: 40, itemB: 'Eraser', priceB: 25, total: 65 }
-  },
-  {
-    id: 62, districtId: 6, category: 'ADDITION', visual: 'receipt',
-    questionText: "Emma buys a muffin for 85¢ and a juice box for 60¢. How much in total?",
-    options: ['$1.45', '$1.35', '$1.50', '$1.25'],
-    correctAnswer: '$1.45',
-    explanation: "85¢ + 60¢ = 145¢ = $1.45.",
-    hint1: "85 + 60 = 145 cents.",
-    hint2: "145 cents is $1.45.",
-    visualData: { itemA: 'Muffin', priceA: 85, itemB: 'Juice box', priceB: 60, total: 145 }
-  },
-  {
-    id: 63, districtId: 6, category: 'ADDITION', visual: 'receipt',
-    questionText: "Noah buys a ruler for $1.20 and a notebook for $2.30. Total cost?",
-    options: ['$3.50', '$3.40', '$3.60', '$3.20'],
-    correctAnswer: '$3.50',
-    explanation: "$1.20 + $2.30 = $3.50.",
-    hint1: "Add the dollars: $1 + $2 = $3.",
-    hint2: "Add the cents: 20¢ + 30¢ = 50¢. Total is $3.50.",
-    visualData: { itemA: 'Ruler', priceA: 120, itemB: 'Notebook', priceB: 230, total: 350 }
-  },
-  {
-    id: 64, districtId: 6, category: 'ADDITION', visual: 'receipt',
-    questionText: "Sophie buys a sticker pack for 75¢ and a bookmark for 45¢. How much altogether?",
-    options: ['$1.20', '$1.10', '$1.25', '$1.15'],
-    correctAnswer: '$1.20',
-    explanation: "75¢ + 45¢ = 120¢ = $1.20.",
-    hint1: "75 + 45 = 120 cents.",
-    hint2: "120 cents is $1.20.",
-    visualData: { itemA: 'Sticker pack', priceA: 75, itemB: 'Bookmark', priceB: 45, total: 120 }
-  },
-  {
-    id: 65, districtId: 6, category: 'ADDITION', visual: 'receipt',
-    questionText: "James spends $3.50 on lunch and $1.50 on dessert. What is his total bill?",
-    options: ['$5.00', '$4.50', '$5.50', '$4.00'],
-    correctAnswer: '$5.00',
-    explanation: "$3.50 + $1.50 = $5.00.",
-    hint1: "$3 + $1 = $4. 50¢ + 50¢ = $1.00.",
-    hint2: "$4.00 + $1.00 = $5.00.",
-    visualData: { itemA: 'Lunch', priceA: 350, itemB: 'Dessert', priceB: 150, total: 500 }
-  },
-  {
-    id: 66, districtId: 6, category: 'ADDITION', visual: 'receipt',
-    questionText: "Ava buys coloured pencils for $2.40 and a sketch pad for $1.60. Total?",
-    options: ['$4.00', '$3.90', '$4.10', '$3.80'],
-    correctAnswer: '$4.00',
-    explanation: "$2.40 + $1.60 = $4.00.",
-    hint1: "$2 + $1 = $3. 40¢ + 60¢ = $1.00.",
-    hint2: "$3.00 + $1.00 = $4.00.",
-    visualData: { itemA: 'Pencils', priceA: 240, itemB: 'Pad', priceB: 160, total: 400 }
-  },
-  {
-    id: 67, districtId: 6, category: 'ADDITION', visual: 'receipt',
-    questionText: "Ethan buys an apple for 50¢, a banana for 40¢, and a milk carton for 80¢. Total spent?",
-    options: ['$1.70', '$1.60', '$1.80', '$1.50'],
-    correctAnswer: '$1.70',
-    explanation: "50¢ + 40¢ + 80¢ = 170¢ = $1.70.",
-    hint1: "50 + 40 = 90¢.",
-    hint2: "90¢ + 80¢ = 170¢ = $1.70.",
-    visualData: { itemA: 'Fruits & Milk', priceA: 170, total: 170 }
-  },
-  {
-    id: 68, districtId: 6, category: 'ADDITION', visual: 'receipt',
-    questionText: "Grace spends $4.25 on a storybook and $2.50 on a toy car. How much does she spend?",
-    options: ['$6.75', '$6.50', '$6.65', '$7.00'],
-    correctAnswer: '$6.75',
-    explanation: "$4.25 + $2.50 = $6.75.",
-    hint1: "$4 + $2 = $6.",
-    hint2: "25¢ + 50¢ = 75¢. Total is $6.75.",
-    visualData: { itemA: 'Storybook', priceA: 425, itemB: 'Toy car', priceB: 250, total: 675 }
-  },
-  {
-    id: 69, districtId: 6, category: 'ADDITION', visual: 'receipt',
-    questionText: "Henry buys a badge for 70¢ and a ribbon for 35¢. Total cost?",
-    options: ['$1.05', '$1.00', '$1.10', '95¢'],
-    correctAnswer: '$1.05',
-    explanation: "70¢ + 35¢ = 105¢ = $1.05.",
-    hint1: "70 + 35 = 105 cents.",
-    hint2: "105 cents is $1.05.",
-    visualData: { itemA: 'Badge', priceA: 70, itemB: 'Ribbon', priceB: 35, total: 105 }
-  },
-  {
-    id: 70, districtId: 6, category: 'ADDITION', visual: 'receipt',
-    questionText: "Chloe buys 2 packs of cards at $1.50 each. How much does she pay?",
-    options: ['$3.00', '$2.50', '$3.50', '$2.00'],
-    correctAnswer: '$3.00',
-    explanation: "$1.50 + $1.50 = $3.00.",
-    hint1: "Double $1.50.",
-    hint2: "$1.50 + $1.50 = $3.00.",
-    visualData: { itemA: 'Cards (x2)', priceA: 300, total: 300 }
-  },
-
-  // ── WORLD 7: MAKING CHANGE (Questions 71 - 80: Calculating Change) ───────────
-  {
-    id: 71, districtId: 7, category: 'CHANGE', visual: 'change',
-    questionText: "Oliver buys a muffin for 85¢ and pays with a $1.00 coin. How much change does he get?",
-    options: ['15¢', '25¢', '10¢', '20¢'],
-    correctAnswer: '15¢',
-    explanation: "$1.00 − 85¢ = 100¢ − 85¢ = 15¢ change.",
-    hint1: "Change = Amount Paid − Price.",
-    hint2: "100¢ − 85¢ = 15¢.",
-    visualData: { price: 85, paid: 100, change: 15 }
-  },
-  {
-    id: 72, districtId: 7, category: 'CHANGE', visual: 'change',
-    questionText: "Emma buys a pencil for 40¢ and pays with a 50¢ coin. How much change?",
-    options: ['10¢', '5¢', '15¢', '20¢'],
-    correctAnswer: '10¢',
-    explanation: "50¢ − 40¢ = 10¢.",
-    hint1: "Subtract 40¢ from 50¢.",
-    hint2: "50 − 40 = 10¢.",
-    visualData: { price: 40, paid: 50, change: 10 }
-  },
-  {
-    id: 73, districtId: 7, category: 'CHANGE', visual: 'change',
-    questionText: "Noah buys a juice box for $1.30 and pays with a $2.00 coin. What is his change?",
-    options: ['70¢', '60¢', '80¢', '50¢'],
-    correctAnswer: '70¢',
-    explanation: "$2.00 − $1.30 = 200¢ − 130¢ = 70¢.",
-    hint1: "$2.00 is 200 cents.",
-    hint2: "200¢ − 130¢ = 70¢.",
-    visualData: { price: 130, paid: 200, change: 70 }
-  },
-  {
-    id: 74, districtId: 7, category: 'CHANGE', visual: 'change',
-    questionText: "Sophie buys a book for $3.50 and pays with a $5.00 note. How much change does she receive?",
-    options: ['$1.50', '$2.50', '$1.00', '$2.00'],
-    correctAnswer: '$1.50',
-    explanation: "$5.00 − $3.50 = $1.50.",
-    hint1: "$5.00 − $3.00 = $2.00.",
-    hint2: "$2.00 − 50¢ = $1.50.",
-    visualData: { price: 350, paid: 500, change: 150 }
-  },
-  {
-    id: 75, districtId: 7, category: 'CHANGE', visual: 'change',
-    questionText: "Jack buys an eraser for 65¢ and pays with a $1.00 coin. What is his change?",
-    options: ['35¢', '45¢', '25¢', '30¢'],
-    correctAnswer: '35¢',
-    explanation: "100¢ − 65¢ = 35¢.",
-    hint1: "100 − 65 = ?",
-    hint2: "65 + 35 = 100, so change is 35¢.",
-    visualData: { price: 65, paid: 100, change: 35 }
-  },
-  {
-    id: 76, districtId: 7, category: 'CHANGE', visual: 'change',
-    questionText: "Ava buys a snack for $2.40 and gives the cashier $5.00. How much change is returned?",
-    options: ['$2.60', '$3.60', '$2.40', '$3.40'],
-    correctAnswer: '$2.60',
-    explanation: "$5.00 − $2.40 = $2.60.",
-    hint1: "500¢ − 240¢ = 260¢.",
-    hint2: "260¢ is $2.60.",
-    visualData: { price: 240, paid: 500, change: 260 }
-  },
-  {
-    id: 77, districtId: 7, category: 'CHANGE', visual: 'change',
-    questionText: "Ethan buys a toy for $1.75 and pays with two $1 coins ($2.00). How much change?",
-    options: ['25¢', '35¢', '15¢', '50¢'],
-    correctAnswer: '25¢',
-    explanation: "$2.00 − $1.75 = 25¢.",
-    hint1: "200 − 175 = 25.",
-    hint2: "Change is 25¢.",
-    visualData: { price: 175, paid: 200, change: 25 }
-  },
-  {
-    id: 78, districtId: 7, category: 'CHANGE', visual: 'change',
-    questionText: "Grace pays $10.00 for a backpack costing $7.20. What is her change?",
-    options: ['$2.80', '$3.80', '$2.20', '$3.20'],
-    correctAnswer: '$2.80',
-    explanation: "$10.00 − $7.20 = $2.80.",
-    hint1: "$10.00 − $7.00 = $3.00.",
-    hint2: "$3.00 − 20¢ = $2.80.",
-    visualData: { price: 720, paid: 1000, change: 280 }
-  },
-  {
-    id: 79, districtId: 7, category: 'CHANGE', visual: 'change',
-    questionText: "Henry buys a sticker for 15¢ and pays with a 50¢ coin. How much change does he get?",
-    options: ['35¢', '25¢', '40¢', '30¢'],
-    correctAnswer: '35¢',
-    explanation: "50¢ − 15¢ = 35¢.",
-    hint1: "50 − 15 = 35.",
-    hint2: "Change is 35¢.",
-    visualData: { price: 15, paid: 50, change: 35 }
-  },
-  {
-    id: 80, districtId: 7, category: 'CHANGE', visual: 'change',
-    questionText: "Chloe buys a water bottle for $1.10 and hands over a $5.00 note. What change is due?",
-    options: ['$3.90', '$4.10', '$3.80', '$4.90'],
-    correctAnswer: '$3.90',
-    explanation: "$5.00 − $1.10 = $3.90.",
-    hint1: "$5.00 − $1.00 = $4.00.",
-    hint2: "$4.00 − 10¢ = $3.90.",
-    visualData: { price: 110, paid: 500, change: 390 }
-  },
-
-  // ── WORLD 8: WORD PROBLEM MARKET (Questions 81 - 90: Shopping Word Problems) ─
-  {
-    id: 81, districtId: 8, category: 'WORD PROBLEM', visual: 'word_problem',
-    questionText: "Oliver has $5.00. He buys a notebook for $2.50 and a pen for $1.00. How much money does he have left?",
-    options: ['$1.50', '$2.00', '$1.00', '$2.50'],
-    correctAnswer: '$1.50',
-    explanation: "Total spent = $2.50 + $1.00 = $3.50. Money left = $5.00 − $3.50 = $1.50.",
-    hint1: "Find total spent first: $2.50 + $1.00 = $3.50.",
-    hint2: "Subtract from $5.00: $5.00 − $3.50 = $1.50.",
-    visualData: { starting: 500, spent: 350, left: 150 }
-  },
-  {
-    id: 82, districtId: 8, category: 'WORD PROBLEM', visual: 'word_problem',
-    questionText: "Emma wants to buy a game costing $4.80. She has saved $3.20. How much more money does she need?",
-    options: ['$1.60', '$1.40', '$1.80', '$2.00'],
-    correctAnswer: '$1.60',
-    explanation: "$4.80 − $3.20 = $1.60 needed.",
-    hint1: "Subtract what she has from the cost.",
-    hint2: "$4.80 − $3.20 = $1.60.",
-    visualData: { target: 480, have: 320, need: 160 }
-  },
-  {
-    id: 83, districtId: 8, category: 'WORD PROBLEM', visual: 'word_problem',
-    questionText: "A storybook costs $6.00. A comic book costs $2.50. How much more does the storybook cost?",
-    options: ['$3.50', '$4.00', '$3.00', '$4.50'],
-    correctAnswer: '$3.50',
-    explanation: "$6.00 − $2.50 = $3.50 difference.",
-    hint1: "Find the difference between $6.00 and $2.50.",
-    hint2: "$6.00 − $2.50 = $3.50.",
-    visualData: { itemA: 600, itemB: 250, diff: 350 }
-  },
-  {
-    id: 84, districtId: 8, category: 'WORD PROBLEM', visual: 'word_problem',
-    questionText: "Noah has $2.00. An ice cream costs $2.40. Does he have enough money?",
-    options: ['No, he needs 40¢ more', 'Yes, he has exact amount', 'Yes, with 40¢ change', 'No, he needs $1 more'],
-    correctAnswer: 'No, he needs 40¢ more',
-    explanation: "$2.00 is less than $2.40. He needs $2.40 − $2.00 = 40¢ more.",
-    hint1: "$2.00 < $2.40.",
-    hint2: "He is short by $2.40 − $2.00 = 40¢.",
-    visualData: { have: 200, need: 240, diff: 40 }
-  },
-  {
-    id: 85, districtId: 8, category: 'WORD PROBLEM', visual: 'word_problem',
-    questionText: "Sophie saves 50¢ every day. How much money will she have in 6 days?",
-    options: ['$3.00', '$2.50', '$3.50', '$2.00'],
-    correctAnswer: '$3.00',
-    explanation: "6 × 50¢ = 300¢ = $3.00.",
-    hint1: "Multiply 6 by 50 cents.",
-    hint2: "6 × 50¢ = 300 cents = $3.00.",
-    visualData: { days: 6, daily: 50, total: 300 }
-  },
-  {
-    id: 86, districtId: 8, category: 'WORD PROBLEM', visual: 'word_problem',
-    questionText: "James buys 3 muffins at 80¢ each. How much does he pay altogether?",
-    options: ['$2.40', '$2.00', '$2.60', '$1.80'],
-    correctAnswer: '$2.40',
-    explanation: "3 × 80¢ = 240¢ = $2.40.",
-    hint1: "3 × 80 = 240 cents.",
-    hint2: "240 cents = $2.40.",
-    visualData: { qty: 3, unitPrice: 80, total: 240 }
-  },
-  {
-    id: 87, districtId: 8, category: 'WORD PROBLEM', visual: 'word_problem',
-    questionText: "Ava has $10.00. She spends $4.20 on lunch and $1.80 on juice. How much does she have left?",
-    options: ['$4.00', '$4.50', '$3.80', '$5.00'],
-    correctAnswer: '$4.00',
-    explanation: "Total spent = $4.20 + $1.80 = $6.00. Left = $10.00 − $6.00 = $4.00.",
-    hint1: "Spent: $4.20 + $1.80 = $6.00.",
-    hint2: "$10.00 − $6.00 = $4.00.",
-    visualData: { starting: 1000, spent: 600, left: 400 }
-  },
-  {
-    id: 88, districtId: 8, category: 'WORD PROBLEM', visual: 'word_problem',
-    questionText: "Ethan and Lucas put their pocket money together. Ethan has $2.70 and Lucas has $3.30. Total?",
-    options: ['$6.00', '$5.90', '$6.10', '$5.50'],
-    correctAnswer: '$6.00',
-    explanation: "$2.70 + $3.30 = $6.00.",
-    hint1: "$2 + $3 = $5.",
-    hint2: "70¢ + 30¢ = $1.00. $5 + $1 = $6.00.",
-    visualData: { personA: 270, personB: 330, total: 600 }
-  },
-  {
-    id: 89, districtId: 8, category: 'WORD PROBLEM', visual: 'word_problem',
-    questionText: "A box of crayons costs $3.60. Oliver pays with a $5.00 note. What change should he receive?",
-    options: ['$1.40', '$1.60', '$2.40', '$1.20'],
-    correctAnswer: '$1.40',
-    explanation: "$5.00 − $3.60 = $1.40.",
-    hint1: "500¢ − 360¢ = 140¢.",
-    hint2: "140¢ = $1.40.",
-    visualData: { price: 360, paid: 500, change: 140 }
-  },
-  {
-    id: 90, districtId: 8, category: 'WORD PROBLEM', visual: 'word_problem',
-    questionText: "Grace bought 4 sticker packs for $1.00 each and gave the cashier a $10.00 note. How much change?",
-    options: ['$6.00', '$5.00', '$7.00', '$4.00'],
-    correctAnswer: '$6.00',
-    explanation: "4 × $1.00 = $4.00. $10.00 − $4.00 = $6.00 change.",
-    hint1: "Total cost = 4 × $1 = $4.",
-    hint2: "$10 − $4 = $6.00.",
-    visualData: { price: 400, paid: 1000, change: 600 }
-  },
-
-  // ── WORLD 9: MONEY MASTER (Questions 91 - 100: Grand Challenge Mixed Review) ─
-  {
-    id: 91, districtId: 9, category: 'GRAND CHALLENGE', visual: 'mixed',
-    questionText: "Convert 845 cents into dollars and cents.",
-    options: ['$8.45', '$84.50', '$0.85', '$8.05'],
-    correctAnswer: '$8.45',
-    explanation: "845 cents = $8.45.",
-    hint1: "800 cents = $8.00.",
-    hint2: "800¢ + 45¢ = $8.45.",
-    visualData: { cents: 845, dollars: 8.45 }
-  },
-  {
-    id: 92, districtId: 9, category: 'GRAND CHALLENGE', visual: 'coins',
-    questionText: "Which is greater: ten 10¢ coins or two 50¢ coins?",
-    options: ['They are exactly equal ($1.00)', 'Ten 10¢ coins is more', 'Two 50¢ coins is more', 'Cannot tell'],
-    correctAnswer: 'They are exactly equal ($1.00)',
-    explanation: "10 × 10¢ = 100¢ = $1.00. 2 × 50¢ = 100¢ = $1.00. They are equal!",
-    hint1: "10 × 10¢ = 100¢.",
-    hint2: "2 × 50¢ = 100¢. Both are $1.00.",
-    visualData: { amountA: 100, amountB: 100 }
-  },
-  {
-    id: 93, districtId: 9, category: 'GRAND CHALLENGE', visual: 'receipt',
-    questionText: "Oliver buys a book for $4.35 and a bookmark for 85¢. How much in total?",
-    options: ['$5.20', '$5.15', '$5.25', '$5.10'],
-    correctAnswer: '$5.20',
-    explanation: "$4.35 + 85¢ = 435¢ + 85¢ = 520¢ = $5.20.",
-    hint1: "435 + 85 = 520 cents.",
-    hint2: "520 cents = $5.20.",
-    visualData: { itemA: 'Book', priceA: 435, itemB: 'Bookmark', priceB: 85, total: 520 }
-  },
-  {
-    id: 94, districtId: 9, category: 'GRAND CHALLENGE', visual: 'change',
-    questionText: "Emma pays with a $10.00 note for a $6.45 purchase. What is her change?",
-    options: ['$3.55', '$3.65', '$4.55', '$3.45'],
-    correctAnswer: '$3.55',
-    explanation: "$10.00 − $6.45 = $3.55.",
-    hint1: "1000 − 645 = 355.",
-    hint2: "Change is $3.55.",
-    visualData: { price: 645, paid: 1000, change: 355 }
-  },
-  {
-    id: 95, districtId: 9, category: 'GRAND CHALLENGE', visual: 'coins',
-    questionText: "What is the fewest coins needed to make 85¢?",
-    options: ['3 coins (50¢ + 20¢ + 15¢ is not possible: 50¢ + 20¢ + 10¢ + 5¢ is 4 coins)', '4 coins (50¢ + 20¢ + 10¢ + 5¢)', '5 coins', '6 coins'],
-    correctAnswer: '4 coins (50¢ + 20¢ + 10¢ + 5¢)',
-    explanation: "One 50¢, one 20¢, one 10¢, and one 5¢ = 4 coins.",
-    hint1: "Use largest denomination first: 50¢, then 20¢ (70¢), then 10¢ (80¢), then 5¢ (85¢).",
-    hint2: "Total is 4 coins.",
-    visualData: { fifties: 1, twenties: 1, tens: 1, fives: 1, total: 85 }
-  },
-  {
-    id: 96, districtId: 9, category: 'GRAND CHALLENGE', visual: 'mixed',
-    questionText: "Jack has one $5 note, two $2 coins, and three 20¢ coins. How much in total?",
-    options: ['$9.60', '$9.40', '$8.60', '$9.50'],
-    correctAnswer: '$9.60',
-    explanation: "$5.00 + $4.00 + 60¢ = $9.60.",
-    hint1: "Dollars: $5 + $4 = $9.",
-    hint2: "Cents: 3 × 20¢ = 60¢. Total is $9.60.",
-    visualData: { fiveNotes: 1, twos: 2, twenties: 3, total: 960 }
-  },
-  {
-    id: 97, districtId: 9, category: 'GRAND CHALLENGE', visual: 'comparison',
-    questionText: "Which is the smallest amount?",
-    options: ['85¢', '$1.05', '90¢', '$0.88'],
-    correctAnswer: '85¢',
-    explanation: "In cents: 85¢ < 88¢ < 90¢ < 105¢.",
-    hint1: "Compare all in cents: 85, 105, 90, 88.",
-    hint2: "85¢ is the smallest.",
-    visualData: { sorted: ['85¢', '$0.88', '90¢', '$1.05'] }
-  },
-  {
-    id: 98, districtId: 9, category: 'GRAND CHALLENGE', visual: 'word_problem',
-    questionText: "A toy robot costs $8.50. Sophie saves $1.50 every week. In how many weeks can she buy it (with money left over)?",
-    options: ['6 weeks ($9.00)', '5 weeks ($7.50)', '4 weeks ($6.00)', '7 weeks'],
-    correctAnswer: '6 weeks ($9.00)',
-    explanation: "5 weeks = $7.50 (not enough). 6 weeks = $9.00 (enough to buy robot for $8.50).",
-    hint1: "Multiply $1.50 by weeks: 5 × 1.5 = $7.50 (too little).",
-    hint2: "6 × $1.50 = $9.00 (enough!).",
-    visualData: { weekly: 150, target: 850, weeks: 6 }
-  },
-  {
-    id: 99, districtId: 9, category: 'GRAND CHALLENGE', visual: 'receipt',
-    questionText: "Ryan bought 3 apples at 50¢ each and 2 juices at $1.20 each. How much did he spend?",
-    options: ['$3.90', '$3.50', '$4.00', '$3.70'],
-    correctAnswer: '$3.90',
-    explanation: "(3 × 50¢) + (2 × $1.20) = $1.50 + $2.40 = $3.90.",
-    hint1: "Apples: 3 × 50¢ = $1.50.",
-    hint2: "Juices: 2 × $1.20 = $2.40. $1.50 + $2.40 = $3.90.",
-    visualData: { itemA: 'Apples', priceA: 150, itemB: 'Juices', priceB: 240, total: 390 }
-  },
-  {
-    id: 100, districtId: 9, category: 'GRAND CHALLENGE', visual: 'change',
-    questionText: "Oliver has $10.00. He buys lunch for $4.65 and dessert for $2.35. How much change does he keep?",
-    options: ['$3.00', '$2.50', '$3.50', '$2.00'],
-    correctAnswer: '$3.00',
-    explanation: "Total spent = $4.65 + $2.35 = $7.00. Change = $10.00 − $7.00 = $3.00.",
-    hint1: "$4.65 + $2.35 = $7.00 spent.",
-    hint2: "$10.00 − $7.00 = $3.00 remaining.",
-    visualData: { starting: 1000, spent: 700, left: 300 }
+function shuffleArray(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
   }
-];
+  return copy;
+}
 
-export default RAW_QUESTIONS;
+function makeUniqueOptions(correctAnswer, distractors) {
+  const strCorrect = String(correctAnswer);
+  const filtered = Array.from(new Set(distractors.map(d => String(d)))).filter(d => d !== strCorrect);
+
+  while (filtered.length < 3) {
+    const num = parseFloat(strCorrect);
+    if (!isNaN(num)) {
+      const offset = (filtered.length + 1) * 2;
+      filtered.push(String(num + offset));
+    } else {
+      filtered.push(`Option ${filtered.length + 1}`);
+    }
+  }
+
+  const selectedDistractors = filtered.slice(0, 3);
+  const options = shuffleArray([strCorrect, ...selectedDistractors]);
+  return { options, correctAnswer: strCorrect };
+}
+
+// ── WORLD 0: Reading the Blueprint (state-single-step-rule) ───────────────
+function genWorld0(qIdx) {
+  const operations = [
+    { op: 'add', value: 3, start: 4 },
+    { op: 'add', value: 4, start: 5 },
+    { op: 'add', value: 5, start: 2 },
+    { op: 'add', value: 6, start: 7 },
+    { op: 'add', value: 7, start: 3 },
+    { op: 'subtract', value: 3, start: 25 },
+    { op: 'subtract', value: 4, start: 30 },
+    { op: 'subtract', value: 5, start: 40 },
+    { op: 'multiply', value: 2, start: 3 },
+    { op: 'multiply', value: 3, start: 2 },
+  ];
+  const item = operations[qIdx % operations.length];
+  const seq = generateSequence(item.start, [item], 4);
+  const correct = formatRuleString(item);
+
+  // Distractor 1: Headline misconception — naming the first term as the rule
+  const distractorFirstTerm = String(item.start);
+  // Distractor 2: Opposite operation
+  const opposite = formatRuleString(reverseOperation(item));
+  // Distractor 3: Wrong value
+  const wrongVal = formatRuleString({ op: item.op, value: item.value + 1 });
+
+  const { options, correctAnswer } = makeUniqueOptions(correct, [
+    distractorFirstTerm,
+    opposite,
+    wrongVal,
+  ]);
+
+  return {
+    id: qIdx + 1,
+    districtId: 0,
+    category: 'STATE THE RULE',
+    visual: 'sequence-strip',
+    questionText: `What is the term-to-term rule for the sequence: ${seq.join(', ')}, …?`,
+    options,
+    correctAnswer,
+    explanation: `Looking at consecutive terms: ${seq[0]} ➔ ${seq[1]} is ${correct.toLowerCase()}. A rule describes the ACTION between terms, not the starting number!`,
+    hint1: `Find how you get from the first term (${seq[0]}) to the second term (${seq[1]}).`,
+    hint2: `Check if that same operation works between ${seq[1]} and ${seq[2]}. Remember: a rule is an action, not the first number!`,
+    visualData: { sequence: seq, ruleLabel: correct },
+  };
+}
+
+// ── WORLD 1: Testing the Machine (verify-rule-every-pair) ──────────────────
+function genWorld1(qIdx) {
+  // Variations: Some valid sequences, some invalid that break at index 1, 2, or 3
+  const tests = [
+    { rule: { op: 'add', value: 4 }, seq: [3, 7, 11, 15], valid: true, breakAt: null },
+    { rule: { op: 'add', value: 3 }, seq: [2, 5, 8, 12], valid: false, breakAt: 2, actualGap: 4 },
+    { rule: { op: 'add', value: 5 }, seq: [10, 15, 20, 25], valid: true, breakAt: null },
+    { rule: { op: 'subtract', value: 4 }, seq: [28, 24, 20, 15], valid: false, breakAt: 2, actualGap: 5 },
+    { rule: { op: 'multiply', value: 2 }, seq: [3, 6, 12, 24], valid: true, breakAt: null },
+    { rule: { op: 'add', value: 6 }, seq: [5, 11, 18, 24], valid: false, breakAt: 1, actualGap: 7 },
+    { rule: { op: 'subtract', value: 3 }, seq: [21, 18, 15, 12], valid: true, breakAt: null },
+    { rule: { op: 'multiply', value: 3 }, seq: [2, 6, 18, 50], valid: false, breakAt: 2, actualGap: 'multiply by 2.77' },
+    { rule: { op: 'add', value: 7 }, seq: [4, 11, 18, 25], valid: true, breakAt: null },
+    { rule: { op: 'add', value: 8 }, seq: [1, 9, 17, 26], valid: false, breakAt: 2, actualGap: 9 },
+  ];
+
+  const t = tests[qIdx % tests.length];
+  const ruleStr = formatRuleString(t.rule);
+
+  let correct, distractors, explanation;
+  if (t.valid) {
+    correct = `Yes — every consecutive gap matches "${ruleStr.toLowerCase()}"`;
+    distractors = [
+      `No — only the first pair matches`,
+      `No — the rule is ${t.seq[0]}`,
+      `No — it only works for odd numbers`,
+    ];
+    explanation = `Checking every pair: each step consistently follows "${ruleStr.toLowerCase()}". It is valid for the whole sequence!`;
+  } else {
+    correct = `No — the gap between ${t.seq[t.breakAt]} and ${t.seq[t.breakAt + 1]} does not follow the rule`;
+    distractors = [
+      `Yes — the first pair matches so the rule is valid`,
+      `Yes — any sequence starting at ${t.seq[0]} is valid`,
+      `No — a rule cannot use the number ${t.rule.value}`,
+    ];
+    explanation = `The first pair(s) may seem to fit, but between ${t.seq[t.breakAt]} and ${t.seq[t.breakAt + 1]} the rule fails. You must test EVERY pair!`;
+  }
+
+  const { options, correctAnswer } = makeUniqueOptions(correct, distractors);
+
+  return {
+    id: qIdx + 11,
+    districtId: 1,
+    category: 'VERIFY EVERY PAIR',
+    visual: 'sequence-strip',
+    questionText: `Does "${ruleStr}" correctly describe the sequence: ${t.seq.join(', ')}?`,
+    options,
+    correctAnswer,
+    explanation,
+    hint1: `Test the proposed rule between the 1st and 2nd terms, then 2nd and 3rd, and 3rd and 4th.`,
+    hint2: `Never stop after checking only the first pair — look closely at every transition!`,
+    visualData: { sequence: t.seq, breakIndex: t.breakAt, ruleLabel: ruleStr },
+  };
+}
+
+// ── WORLD 2: Running the Machine Forward (apply-single-step-rule) ──────────
+function genWorld2(qIdx) {
+  const problems = [
+    { start: 3, op: { op: 'multiply', value: 3 }, targetTerm: 4, ans: 81 },
+    { start: 2, op: { op: 'multiply', value: 2 }, targetTerm: 5, ans: 32 },
+    { start: 5, op: { op: 'add', value: 6 }, targetTerm: 4, ans: 23 },
+    { start: 12, op: { op: 'add', value: 7 }, targetTerm: 4, ans: 33 },
+    { start: 50, op: { op: 'subtract', value: 8 }, targetTerm: 4, ans: 26 },
+    { start: 4, op: { op: 'multiply', value: 3 }, targetTerm: 3, ans: 36 },
+    { start: 80, op: { op: 'divide', value: 2 }, targetTerm: 4, ans: 10 },
+    { start: 7, op: { op: 'add', value: 9 }, targetTerm: 4, ans: 34 },
+    { start: 1, op: { op: 'multiply', value: 4 }, targetTerm: 4, ans: 64 },
+    { start: 45, op: { op: 'subtract', value: 6 }, targetTerm: 4, ans: 27 },
+  ];
+  const p = problems[qIdx % problems.length];
+  const ruleStr = formatRuleString(p.op);
+
+  const correct = p.ans;
+  // Common error: applying rule one fewer times (3rd term instead of 4th)
+  const prevTerm = applyReversedRule(p.ans, [p.op], 1);
+  // Common error: multiplying starting term directly by targetTerm
+  const directMul = p.start + (p.targetTerm * p.op.value);
+  const offset = p.ans + p.op.value;
+
+  const { options, correctAnswer } = makeUniqueOptions(correct, [prevTerm, directMul, offset]);
+
+  return {
+    id: qIdx + 21,
+    districtId: 2,
+    category: 'GENERATE FORWARD',
+    visual: 'machine-flow',
+    questionText: `A sequence machine's rule is "${ruleStr}." Starting with Term 1 = ${p.start}, what is Term ${p.targetTerm}?`,
+    options,
+    correctAnswer,
+    explanation: `Starting at ${p.start}: applying "${ruleStr.toLowerCase()}" repeatedly step-by-step reaches Term ${p.targetTerm} = ${correct}.`,
+    hint1: `Write down Term 1 = ${p.start}, then apply the rule once to get Term 2.`,
+    hint2: `Keep going until you reach Term ${p.targetTerm}.`,
+    visualData: { input: p.start, steps: [p.op], output: '?' },
+  };
+}
+
+// ── WORLD 3: The Two-Gear Machine (apply-compound-rule) ────────────────────
+function genWorld3(qIdx) {
+  const problems = [
+    { start: 3, steps: [{ op: 'multiply', value: 2 }, { op: 'subtract', value: 1 }], targetTerm: 3, ans: 9 }, // 3 -> 5 -> 9
+    { start: 2, steps: [{ op: 'multiply', value: 3 }, { op: 'subtract', value: 2 }], targetTerm: 3, ans: 10 }, // 2 -> 4 -> 10
+    { start: 4, steps: [{ op: 'multiply', value: 2 }, { op: 'add', value: 3 }], targetTerm: 3, ans: 25 }, // 4 -> 11 -> 25
+    { start: 1, steps: [{ op: 'multiply', value: 3 }, { op: 'add', value: 2 }], targetTerm: 3, ans: 17 }, // 1 -> 5 -> 17
+    { start: 5, steps: [{ op: 'multiply', value: 2 }, { op: 'subtract', value: 3 }], targetTerm: 3, ans: 11 }, // 5 -> 7 -> 11
+    { start: 2, steps: [{ op: 'multiply', value: 2 }, { op: 'add', value: 5 }], targetTerm: 3, ans: 23 }, // 2 -> 9 -> 23
+    { start: 3, steps: [{ op: 'multiply', value: 2 }, { op: 'add', value: 1 }], targetTerm: 4, ans: 31 }, // 3 -> 7 -> 15 -> 31
+    { start: 4, steps: [{ op: 'multiply', value: 2 }, { op: 'subtract', value: 4 }], targetTerm: 3, ans: 4 }, // 4 -> 4 -> 4 wait let's use start 5: 5->6->8
+    { start: 5, steps: [{ op: 'multiply', value: 2 }, { op: 'subtract', value: 4 }], targetTerm: 3, ans: 8 }, // 5 -> 6 -> 8
+    { start: 2, steps: [{ op: 'multiply', value: 2 }, { op: 'add', value: 4 }], targetTerm: 3, ans: 20 }, // 2 -> 8 -> 20
+    { start: 1, steps: [{ op: 'multiply', value: 2 }, { op: 'add', value: 3 }], targetTerm: 3, ans: 13 }, // 1 -> 5 -> 13
+  ];
+
+  const p = problems[qIdx % problems.length];
+  const ruleStr = formatRuleString(p.steps);
+  const correct = p.ans;
+
+  // Distractor: performing operations in wrong order
+  const wrongOrderSteps = [...p.steps].reverse();
+  const wrongOrderTerm = generateSequence(p.start, wrongOrderSteps, p.targetTerm)[p.targetTerm - 1];
+  // Distractor: Term 2 instead of targetTerm
+  const term2 = generateSequence(p.start, p.steps, 2)[1];
+  const offset = correct + 2;
+
+  const { options, correctAnswer } = makeUniqueOptions(correct, [wrongOrderTerm, term2, offset]);
+
+  return {
+    id: qIdx + 31,
+    districtId: 3,
+    category: 'COMPOUND RULES',
+    visual: 'machine-flow',
+    questionText: `A two-gear machine's rule is "${ruleStr}." Starting with Term 1 = ${p.start}, find Term ${p.targetTerm}.`,
+    options,
+    correctAnswer,
+    explanation: `Pass each term through gear 1 then gear 2: Term 1 = ${p.start} ➔ Term 2 = ${term2} ➔ Term ${p.targetTerm} = ${correct}.`,
+    hint1: `Apply the first gear operation first, then apply the second gear operation to that result.`,
+    hint2: `That complete two-step process gives the next term. Repeat it to reach Term ${p.targetTerm}!`,
+    visualData: { input: p.start, steps: p.steps, output: '?' },
+  };
+}
+
+// ── WORLD 4: Reverse Engineering (work-backwards-single-step) ─────────────
+function genWorld4(qIdx) {
+  const problems = [
+    { op: { op: 'add', value: 6 }, laterTerm: 25, laterIdx: 4, targetIdx: 3, ans: 19 }, // 25 - 6 = 19
+    { op: { op: 'add', value: 7 }, laterTerm: 33, laterIdx: 4, targetIdx: 1, ans: 12 }, // 33 - 3*7 = 12
+    { op: { op: 'subtract', value: 5 }, laterTerm: 15, laterIdx: 4, targetIdx: 3, ans: 20 }, // 15 + 5 = 20
+    { op: { op: 'multiply', value: 2 }, laterTerm: 48, laterIdx: 4, targetIdx: 3, ans: 24 }, // 48 / 2 = 24
+    { op: { op: 'multiply', value: 3 }, laterTerm: 54, laterIdx: 4, targetIdx: 2, ans: 6 }, // 54 / 3 / 3 = 6
+    { op: { op: 'add', value: 8 }, laterTerm: 38, laterIdx: 4, targetIdx: 3, ans: 30 }, // 38 - 8 = 30
+    { op: { op: 'divide', value: 2 }, laterTerm: 5, laterIdx: 4, targetIdx: 3, ans: 10 }, // 5 * 2 = 10
+    { op: { op: 'subtract', value: 4 }, laterTerm: 18, laterIdx: 4, targetIdx: 1, ans: 30 }, // 18 + 3*4 = 30
+    { op: { op: 'add', value: 9 }, laterTerm: 45, laterIdx: 4, targetIdx: 3, ans: 36 }, // 45 - 9 = 36
+    { op: { op: 'multiply', value: 2 }, laterTerm: 56, laterIdx: 4, targetIdx: 1, ans: 7 }, // 56 / 8 = 7
+  ];
+
+  const p = problems[qIdx % problems.length];
+  const ruleStr = formatRuleString(p.op);
+  const revOp = reverseOperation(p.op);
+  const correct = p.ans;
+
+  // Distractor: Applying the forward operation instead of the reverse!
+  const forwardMistake = applyOperation(p.laterTerm, p.op);
+  const offset = correct + (p.op.value);
+  const halfDist = Math.max(1, Math.floor(correct / 2));
+
+  const { options, correctAnswer } = makeUniqueOptions(correct, [forwardMistake, offset, halfDist]);
+
+  return {
+    id: qIdx + 41,
+    districtId: 4,
+    category: 'WORK BACKWARDS',
+    visual: 'reverse-flow',
+    questionText: `A machine's rule is "${ruleStr}." If Term ${p.laterIdx} is ${p.laterTerm}, what was Term ${p.targetIdx}?`,
+    options,
+    correctAnswer,
+    explanation: `To work backwards, apply the opposite operation: the reverse of "${ruleStr.toLowerCase()}" is "${formatRuleString(revOp).toLowerCase()}." Working back gives ${correct}.`,
+    hint1: `To go backwards in a sequence, perform the inverse (opposite) operation.`,
+    hint2: `If the forward rule adds, subtract! If the forward rule multiplies, divide!`,
+    visualData: { laterTerm: p.laterTerm, laterIndex: `Term ${p.laterIdx}`, steps: [revOp], targetIndex: `Term ${p.targetIdx}`, targetVal: '?' },
+  };
+}
+
+// ── WORLD 5: Full Reverse (work-backwards-compound-rule) ───────────────────
+function genWorld5(qIdx) {
+  const problems = [
+    // Rule: double then subtract 1. (3rd term is 9 -> term 2 is (9+1)/2=5 -> term 1 is (5+1)/2=3)
+    { steps: [{ op: 'multiply', value: 2 }, { op: 'subtract', value: 1 }], laterTerm: 9, laterIdx: 3, targetIdx: 1, ans: 3, step2: 5 },
+    // Rule: double then add 1. (3rd term is 15 -> term 2 is (15-1)/2=7 -> term 1 is (7-1)/2=3)
+    { steps: [{ op: 'multiply', value: 2 }, { op: 'add', value: 1 }], laterTerm: 15, laterIdx: 3, targetIdx: 1, ans: 3, step2: 7 },
+    // Rule: double then add 3. (3rd term is 25 -> term 2 is (25-3)/2=11 -> term 1 is (11-3)/2=4)
+    { steps: [{ op: 'multiply', value: 2 }, { op: 'add', value: 3 }], laterTerm: 25, laterIdx: 3, targetIdx: 1, ans: 4, step2: 11 },
+    // Rule: triple then subtract 2. (3rd term is 10 -> term 2 is (10+2)/3=4 -> term 1 is (4+2)/3=2)
+    { steps: [{ op: 'multiply', value: 3 }, { op: 'subtract', value: 2 }], laterTerm: 10, laterIdx: 3, targetIdx: 1, ans: 2, step2: 4 },
+    // Rule: double then subtract 3. (3rd term is 11 -> term 2 is (11+3)/2=7 -> term 1 is (7+3)/2=5)
+    { steps: [{ op: 'multiply', value: 2 }, { op: 'subtract', value: 3 }], laterTerm: 11, laterIdx: 3, targetIdx: 1, ans: 5, step2: 7 },
+    // Rule: double then add 5. (3rd term is 23 -> term 2 is (23-5)/2=9 -> term 1 is (9-5)/2=2)
+    { steps: [{ op: 'multiply', value: 2 }, { op: 'add', value: 5 }], laterTerm: 23, laterIdx: 3, targetIdx: 1, ans: 2, step2: 9 },
+    // Rule: double then subtract 1. (2nd term is 9 -> term 1 is (9+1)/2=5)
+    { steps: [{ op: 'multiply', value: 2 }, { op: 'subtract', value: 1 }], laterTerm: 9, laterIdx: 2, targetIdx: 1, ans: 5, step2: 5 },
+    // Rule: double then add 1. (2nd term is 11 -> term 1 is (11-1)/2=5)
+    { steps: [{ op: 'multiply', value: 2 }, { op: 'add', value: 1 }], laterTerm: 11, laterIdx: 2, targetIdx: 1, ans: 5, step2: 5 },
+    // Rule: double then subtract 4. (3rd term is 8 -> term 2 is (8+4)/2=6 -> term 1 is (6+4)/2=5)
+    { steps: [{ op: 'multiply', value: 2 }, { op: 'subtract', value: 4 }], laterTerm: 8, laterIdx: 3, targetIdx: 1, ans: 5, step2: 6 },
+    // Rule: triple then add 2. (3rd term is 17 -> term 2 is (17-2)/3=5 -> term 1 is (5-2)/3=1)
+    { steps: [{ op: 'multiply', value: 3 }, { op: 'add', value: 2 }], laterTerm: 17, laterIdx: 3, targetIdx: 1, ans: 1, step2: 5 },
+  ];
+
+  const p = problems[qIdx % problems.length];
+  const ruleStr = formatRuleString(p.steps);
+  const correctRevSteps = reverseRule(p.steps);
+  const revStr = formatRuleString(correctRevSteps);
+  const correct = p.ans;
+
+  // Headline distractor: Inverted operations WITHOUT reversing their order!
+  // e.g. for (x * 2 - 1): inverting without reversing order gives (x / 2 + 1)
+  const wrongOrderRevSteps = reverseRuleWrongOrder(p.steps);
+  let distractorWrongOrder;
+  try {
+    const wrongAns = applyRule(p.laterTerm, wrongOrderRevSteps);
+    distractorWrongOrder = Math.round(wrongAns);
+  } catch {
+    distractorWrongOrder = correct + 3;
+  }
+
+  // Intermediate term distractor (e.g. Term 2 instead of Term 1)
+  const distractorTerm2 = p.step2;
+  const distractorForward = applyRule(p.laterTerm, p.steps);
+
+  const { options, correctAnswer } = makeUniqueOptions(correct, [
+    distractorWrongOrder,
+    distractorTerm2,
+    distractorForward,
+  ]);
+
+  return {
+    id: qIdx + 51,
+    districtId: 5,
+    category: 'FULL REVERSE',
+    visual: 'reverse-flow',
+    questionText: `A machine runs the compound rule "${ruleStr}." If Term ${p.laterIdx} is ${p.laterTerm}, what was Term ${p.targetIdx}?`,
+    options,
+    correctAnswer,
+    explanation: `To reverse a compound rule, do BOTH: swap each operation to its opposite AND reverse the order! The reverse rule is "${revStr.toLowerCase()}." Stepping backwards lands on ${correct}.`,
+    hint1: `First reverse the last action performed, then reverse the first action.`,
+    hint2: `Remember both parts of the rule: opposite operations AND reversed order!`,
+    visualData: { laterTerm: p.laterTerm, laterIndex: `Term ${p.laterIdx}`, steps: correctRevSteps, targetIndex: `Term ${p.targetIdx}`, targetVal: '?' },
+  };
+}
+
+// ── WORLD 6: Sort the Machines (classify-rule-type) ────────────────────────
+function genWorld6(qIdx) {
+  const problems = [
+    { seq: [3, 6, 12, 24], type: 'Geometric', reason: 'constant multiplication by 2' },
+    { seq: [5, 9, 13, 17], type: 'Arithmetic', reason: 'constant addition of 4' },
+    { seq: [2, 5, 11, 23], type: 'Neither', reason: 'compound rule (double then add 1)' },
+    { seq: [40, 20, 10, 5], type: 'Geometric', reason: 'constant division by 2' },
+    { seq: [50, 43, 36, 29], type: 'Arithmetic', reason: 'constant subtraction of 7' },
+    { seq: [1, 1, 2, 3, 5, 8], type: 'Neither', reason: 'Fibonacci-type sequence (sum of previous two)' },
+    { seq: [2, 6, 18, 54], type: 'Geometric', reason: 'constant multiplication by 3' },
+    { seq: [8, 14, 20, 26], type: 'Arithmetic', reason: 'constant addition of 6' },
+    { seq: [3, 7, 15, 31], type: 'Neither', reason: 'compound rule (double then add 1)' },
+    { seq: [100, 85, 70, 55], type: 'Arithmetic', reason: 'constant subtraction of 15' },
+  ];
+
+  const p = problems[qIdx % problems.length];
+  const correct = p.type;
+  const distractors = ['Arithmetic', 'Geometric', 'Neither'].filter(t => t !== correct);
+  distractors.push('Position-to-term');
+
+  const { options, correctAnswer } = makeUniqueOptions(correct, distractors);
+
+  return {
+    id: qIdx + 61,
+    districtId: 6,
+    category: 'CLASSIFY RULE TYPE',
+    visual: 'sequence-strip',
+    questionText: `Is the sequence: ${p.seq.join(', ')} arithmetic, geometric, or neither?`,
+    options,
+    correctAnswer,
+    explanation: `This sequence is ${correct} because it has a ${p.reason}. (Arithmetic = constant add/subtract; Geometric = constant multiply/divide; Neither = compound or Fibonacci-type).`,
+    hint1: `Check the differences between consecutive terms. Are they constant addition/subtraction?`,
+    hint2: `Check the ratios. Are terms multiplied by the same factor, or is it a compound/sum pattern?`,
+    visualData: { sequence: p.seq, ruleLabel: p.type },
+  };
+}
+
+// ── WORLD 7: The Twin-Input Machine (fibonacci-type-sequences) ─────────────
+function genWorld7(qIdx) {
+  const seeds = [
+    { t1: 1, t2: 3, nextTwo: [4, 7], full: [1, 3, 4, 7, 11] },
+    { t1: 2, t2: 5, nextTwo: [7, 12], full: [2, 5, 7, 12, 19] },
+    { t1: 3, t2: 4, nextTwo: [7, 11], full: [3, 4, 7, 11, 18] },
+    { t1: 1, t2: 4, nextTwo: [5, 9], full: [1, 4, 5, 9, 14] },
+    { t1: 2, t2: 3, nextTwo: [5, 8], full: [2, 3, 5, 8, 13] },
+    { t1: 4, t2: 5, nextTwo: [9, 14], full: [4, 5, 9, 14, 23] },
+    { t1: 1, t2: 5, nextTwo: [6, 11], full: [1, 5, 6, 11, 17] },
+    { t1: 3, t2: 5, nextTwo: [8, 13], full: [3, 5, 8, 13, 21] },
+    { t1: 2, t2: 4, nextTwo: [6, 10], full: [2, 4, 6, 10, 16] },
+    { t1: 1, t2: 6, nextTwo: [7, 13], full: [1, 6, 7, 13, 20] },
+  ];
+
+  const s = seeds[qIdx % seeds.length];
+  const correct = `${s.nextTwo[0]}, ${s.nextTwo[1]}`;
+
+  // Distractors
+  const dist1 = `${s.nextTwo[0]}, ${s.nextTwo[0] + 2}`;
+  const dist2 = `${s.t1 + s.t2}, ${s.t1 * s.t2}`;
+  const dist3 = `${s.nextTwo[0] + 1}, ${s.nextTwo[1] + 1}`;
+
+  const { options, correctAnswer } = makeUniqueOptions(correct, [dist1, dist2, dist3]);
+
+  return {
+    id: qIdx + 71,
+    districtId: 7,
+    category: 'FIBONACCI-TYPE',
+    visual: 'fibonacci-pair',
+    questionText: `A Fibonacci-type sequence starts with ${s.t1}, ${s.t2}. What are the next two terms?`,
+    options,
+    correctAnswer,
+    explanation: `In a Fibonacci-type sequence, each term is the sum of the two preceding terms: ${s.t1} + ${s.t2} = ${s.nextTwo[0]}, and then ${s.t2} + ${s.nextTwo[0]} = ${s.nextTwo[1]}.`,
+    hint1: `A Fibonacci-type rule adds the two terms immediately before to make the next term.`,
+    hint2: `Term 3 = Term 1 + Term 2. Then Term 4 = Term 2 + Term 3!`,
+    visualData: { sequence: [s.t1, s.t2, '?', '?'], highlightIndices: [0, 1], targetIndex: 2 },
+  };
+}
+
+// ── WORLD 8: The Inventor's Challenge (applied-multi-step-rule) ────────────
+function genWorld8(qIdx) {
+  const appliedProblems = [
+    {
+      q: "A workshop water tank starts with 10 litres and doubles each hour. How much water is in the tank at hour 5 (Term 5)?",
+      ans: "160 litres",
+      distractors: ["50 litres", "80 litres", "320 litres"],
+      expl: "Sequence of litres: Hour 1 = 10, Hour 2 = 20, Hour 3 = 40, Hour 4 = 80, Hour 5 = 160 litres.",
+      seq: [10, 20, 40, 80, 160],
+    },
+    {
+      q: "Sprocket installs gears in rows. Row 1 has 4 gears, and each new row adds 5 more gears. How many gears are in Row 5?",
+      ans: "24 gears",
+      distractors: ["20 gears", "29 gears", "25 gears"],
+      expl: "Row 1 = 4, Row 2 = 9, Row 3 = 14, Row 4 = 19, Row 5 = 24 gears.",
+      seq: [4, 9, 14, 19, 24],
+    },
+    {
+      q: "A machine cuts wire. The initial length was unknown, but after applying 'halve, then subtract 2 cm' twice, the wire is 8 cm. What was the starting length?",
+      ans: "44 cm",
+      distractors: ["36 cm", "20 cm", "50 cm"],
+      expl: "Reverse rule is: 'add 2, then double'. 8 + 2 = 10, 10 × 2 = 20. Then 20 + 2 = 22, 22 × 2 = 44 cm.",
+      seq: [44, 20, 8],
+    },
+    {
+      q: "An apprentice logs workshop savings starting at $15. Each month he saves $12 more. How much total is saved by month 4?",
+      ans: "$51",
+      distractors: ["$48", "$63", "$39"],
+      expl: "Month 1 = $15, Month 2 = $27, Month 3 = $39, Month 4 = $51.",
+      seq: [15, 27, 39, 51],
+    },
+    {
+      q: "A robotic conveyor sorts tokens by the rule 'triple the input, then add 1.' If 4 tokens enter, what comes out after 2 cycles?",
+      ans: "40",
+      distractors: ["13", "37", "43"],
+      expl: "Input = 4. Cycle 1: 4 × 3 + 1 = 13. Cycle 2: 13 × 3 + 1 = 40 tokens.",
+      seq: [4, 13, 40],
+    },
+    {
+      q: "A cooling coil temperature drops by 6°C every minute. At minute 1 it is 62°C. What is its temperature at minute 5?",
+      ans: "38°C",
+      distractors: ["44°C", "32°C", "30°C"],
+      expl: "Min 1 = 62°C, Min 2 = 56°C, Min 3 = 50°C, Min 4 = 44°C, Min 5 = 38°C.",
+      seq: [62, 56, 50, 44, 38],
+    },
+    {
+      q: "A chain reaction doubles the number of spinning gears and adds 2 every second. Starting with 3 gears, how many are spinning at second 3?",
+      ans: "18",
+      distractors: ["16", "8", "24"],
+      expl: "Sec 1 = 3 gears. Sec 2 = 3 × 2 + 2 = 8. Sec 3 = 8 × 2 + 2 = 18 gears.",
+      seq: [3, 8, 18],
+    },
+    {
+      q: "Zhi Hao records daily workshop visits following a Fibonacci-type rule: Day 1 had 3 visits, Day 2 had 4 visits. How many visits occur on Day 5?",
+      ans: "18",
+      distractors: ["11", "15", "29"],
+      expl: "Day 1 = 3, Day 2 = 4, Day 3 = 7, Day 4 = 11, Day 5 = 7 + 11 = 18 visits.",
+      seq: [3, 4, 7, 11, 18],
+    },
+    {
+      q: "A battery recharge test doubles energy then adds 5 units each cycle. If cycle 3 produced 35 units, what was the starting unit (Cycle 1)?",
+      ans: "5 units",
+      distractors: ["10 units", "2 units", "15 units"],
+      expl: "Reverse is 'subtract 5, then halve'. Cycle 2 = (35 - 5)/2 = 15. Cycle 1 = (15 - 5)/2 = 5 units.",
+      seq: [5, 15, 35],
+    },
+    {
+      q: "Nurul sets up a workshop clock. Its gear rotates 8 degrees in the first notch, then 14, 20, 26 in subsequent notches. What is the rule?",
+      ans: "Add 6 degrees",
+      distractors: ["8 degrees", "Add 8 degrees", "Multiply by 2"],
+      expl: "The differences between consecutive notches: 14 - 8 = 6, 20 - 14 = 6, 26 - 20 = 6. The rule is 'Add 6 degrees'.",
+      seq: [8, 14, 20, 26],
+    },
+  ];
+
+  const p = appliedProblems[qIdx % appliedProblems.length];
+  const { options, correctAnswer } = makeUniqueOptions(p.ans, p.distractors);
+
+  return {
+    id: qIdx + 81,
+    districtId: 8,
+    category: 'APPLIED SCENARIO',
+    visual: 'sequence-strip',
+    questionText: p.q,
+    options,
+    correctAnswer,
+    explanation: p.expl,
+    hint1: `Break down the problem into term-by-term steps.`,
+    hint2: `Look at the rule given and apply it one step at a time, or run it backwards if you know the final value!`,
+    visualData: { sequence: p.seq },
+  };
+}
+
+// ── WORLD 9: The Grand Workshop Showcase (mixed-review) ───────────────────
+function genWorld9(qIdx) {
+  // Grand finale combining classification, backward solving, compound verification
+  const grandProblems = [
+    {
+      cat: 'COMPOUND REVERSE',
+      q: "Master Reversal: A machine runs 'double, then add 5.' If Term 3 is 27, find Term 1.",
+      ans: "3",
+      dist: ["6", "11", "8"],
+      expl: "Reverse rule: 'subtract 5, then halve.' Term 2 = (27 - 5)/2 = 11. Term 1 = (11 - 5)/2 = 3.",
+      vis: 'reverse-flow',
+      visData: { laterTerm: 27, laterIndex: 'Term 3', steps: [{ op: 'subtract', value: 5 }, { op: 'divide', value: 2 }], targetIndex: 'Term 1', targetVal: '?' },
+    },
+    {
+      cat: 'CLASSIFY & REASON',
+      q: "Which of the following sequences is GEOMETRIC?",
+      ans: "4, 12, 36, 108",
+      dist: ["4, 7, 10, 13", "4, 7, 14, 28", "1, 4, 5, 9"],
+      expl: "4, 12, 36, 108 is geometric because each term is multiplied by a constant 3 (4×3=12, 12×3=36, 36×3=108).",
+      vis: 'sequence-strip',
+      visData: { sequence: [4, 12, 36, 108], ruleLabel: '× 3' },
+    },
+    {
+      cat: 'VERIFY EVERY PAIR',
+      q: "Does 'subtract 4' describe the sequence: 32, 28, 24, 19?",
+      ans: "No — fails between 24 and 19 (gap is 5)",
+      dist: ["Yes — 32 minus 4 is 28 so it works", "Yes — all terms are even except 19", "No — the rule is 32"],
+      expl: "Checking every pair: 32➔28 (−4), 28➔24 (−4), but 24➔19 is −5! You must check every pair.",
+      vis: 'sequence-strip',
+      visData: { sequence: [32, 28, 24, 19], breakIndex: 2, ruleLabel: '− 4' },
+    },
+    {
+      cat: 'FIBONACCI TWIN-INPUT',
+      q: "A twin-input machine has Term 1 = 4 and Term 2 = 6. What is Term 5?",
+      ans: "26",
+      dist: ["16", "22", "30"],
+      expl: "Term 1 = 4, Term 2 = 6, Term 3 = 10, Term 4 = 16, Term 5 = 10 + 16 = 26.",
+      vis: 'fibonacci-pair',
+      visData: { sequence: [4, 6, 10, 16, '?'], highlightIndices: [2, 3], targetIndex: 4 },
+    },
+    {
+      cat: 'REVERSE HABIT',
+      q: "What is the correct reverse of the compound rule: 'multiply by 4, then add 7'?",
+      ans: "Subtract 7, then divide by 4",
+      dist: ["Divide by 4, then subtract 7", "Add 7, then multiply by 4", "Subtract 4, then divide by 7"],
+      expl: "Reversing a compound rule requires TWO steps: invert each operation AND reverse their order!",
+      vis: 'machine-flow',
+      visData: { input: 'x', steps: [{ op: 'subtract', value: 7 }, { op: 'divide', value: 4 }], output: 'orig' },
+    },
+    {
+      cat: 'HEADLINE MISCONCEPTION',
+      q: "Nurul looks at 8, 14, 20, 26 and says: 'The rule is 8.' How should Zhi Hao correct her?",
+      ans: "8 is the first term; the rule is 'Add 6'",
+      dist: ["She is right; the rule is always the first term", "The rule is 14", "The rule is multiply by 8"],
+      expl: "A term-to-term rule describes the ACTION between consecutive terms ('Add 6'), never the starting number!",
+      vis: 'sequence-strip',
+      visData: { sequence: [8, 14, 20, 26], ruleLabel: '+ 6' },
+    },
+    {
+      cat: 'GENERATE FORWARD',
+      q: "A two-gear machine runs 'double, then add 3.' Starting at Term 1 = 2, find Term 3.",
+      ans: "17",
+      dist: ["7", "14", "19"],
+      expl: "Term 1 = 2. Term 2 = 2 × 2 + 3 = 7. Term 3 = 7 × 2 + 3 = 17.",
+      vis: 'machine-flow',
+      visData: { input: 2, steps: [{ op: 'multiply', value: 2 }, { op: 'add', value: 3 }], output: 17 },
+    },
+    {
+      cat: 'WORK BACKWARDS',
+      q: "A single-operation machine's rule is 'divide by 3.' If Term 4 is 4, what was Term 1?",
+      ans: "108",
+      dist: ["12", "36", "48"],
+      expl: "Reverse of 'divide by 3' is 'multiply by 3.' Term 3 = 12, Term 2 = 36, Term 1 = 108.",
+      vis: 'reverse-flow',
+      visData: { laterTerm: 4, laterIndex: 'Term 4', steps: [{ op: 'multiply', value: 3 }], targetIndex: 'Term 1', targetVal: 108 },
+    },
+    {
+      cat: 'CLASSIFY RULE TYPE',
+      q: "Why is the sequence 2, 5, 8, 11 classified as ARITHMETIC?",
+      ans: "It has a constant difference (+3) between all terms",
+      dist: ["It multiplies by 3", "It starts with an even number", "It has 4 terms"],
+      expl: "Arithmetic sequences are defined by a constant add or subtract step between consecutive terms.",
+      vis: 'sequence-strip',
+      visData: { sequence: [2, 5, 8, 11], ruleLabel: '+ 3' },
+    },
+    {
+      cat: 'CHIEF ENGINEER FINALE',
+      q: "Final Grand Contraption: A sequence starts with 5. It uses the compound rule 'double, then subtract 3.' Find Term 4.",
+      ans: "19",
+      dist: ["7", "11", "35"],
+      expl: "Term 1 = 5. Term 2 = 5×2−3 = 7. Term 3 = 7×2−3 = 11. Term 4 = 11×2−3 = 19.",
+      vis: 'machine-flow',
+      visData: { input: 5, steps: [{ op: 'multiply', value: 2 }, { op: 'subtract', value: 3 }], output: 19 },
+    },
+  ];
+
+  const p = grandProblems[qIdx % grandProblems.length];
+  const { options, correctAnswer } = makeUniqueOptions(p.ans, p.dist);
+
+  return {
+    id: qIdx + 91,
+    districtId: 9,
+    category: p.cat,
+    visual: p.vis,
+    questionText: p.q,
+    options,
+    correctAnswer,
+    explanation: p.expl,
+    hint1: `Think carefully about the concepts you've mastered across all 10 workshop worlds!`,
+    hint2: `Check operations, reversals, and whether the question asks for a forward term, an earlier term, or a rule.`,
+    visualData: p.visData,
+  };
+}
+
+/**
+ * Builds the complete 100-question bank across 10 worlds.
+ */
+export function generateQuestionBank() {
+  const bank = [];
+  for (let q = 0; q < 10; q++) bank.push(genWorld0(q));
+  for (let q = 0; q < 10; q++) bank.push(genWorld1(q));
+  for (let q = 0; q < 10; q++) bank.push(genWorld2(q));
+  for (let q = 0; q < 10; q++) bank.push(genWorld3(q));
+  for (let q = 0; q < 10; q++) bank.push(genWorld4(q));
+  for (let q = 0; q < 10; q++) bank.push(genWorld5(q));
+  for (let q = 0; q < 10; q++) bank.push(genWorld6(q));
+  for (let q = 0; q < 10; q++) bank.push(genWorld7(q));
+  for (let q = 0; q < 10; q++) bank.push(genWorld8(q));
+  for (let q = 0; q < 10; q++) bank.push(genWorld9(q));
+  return bank;
+}
+
+const questionBank = generateQuestionBank();
+export default questionBank;
