@@ -1,15 +1,15 @@
 // src/utils/badgeEngine.js
-// Badge definitions and unlock triggers for MoneyQuest
+// Badge definitions and unlock triggers for RuleQuest (Grade 7 Term-to-Term Rules)
 
 export const BADGES = [
-  { id: 'first_coin',       icon: '🏅', label: 'First Coin',       description: 'Answered your very first money question correctly!' },
-  { id: 'hot_streak',        icon: '🔥', label: 'Hot Streak',       description: 'Achieved a streak of 5 correct answers!' },
-  { id: 'super_streak',      icon: '⚡', label: 'Money Prodigy',    description: 'Achieved a 10-question winning streak!' },
-  { id: 'change_champ',      icon: '🧪', label: 'Lab Champion',     description: 'Completed all 4 interactive simulation stations!' },
-  { id: 'district_champ',    icon: '⭐', label: 'District Star',    description: 'Scored 3 stars in a Practice World!' },
-  { id: 'boss_slayer',       icon: '👑', label: 'Boss Slayer',      description: 'Defeated a World Boss in battle!' },
-  { id: 'century_scorer',    icon: '🎯', label: 'Centurion',        description: 'Answered over 20 questions in Practice!' },
-  { id: 'money_master',      icon: '🏆', label: 'Money Master',     description: 'Completed the full 5-phase MoneyQuest journey!' },
+  { id: 'first_coin',       icon: '⚙️',  label: 'First Gear Turned',     description: 'Turned your very first gear with a correct answer!' },
+  { id: 'hot_streak',        icon: '🔧',  label: 'Smooth Running',        description: 'Achieved a streak of 5 correct answers!' },
+  { id: 'super_streak',      icon: '🔥',  label: 'Well-Oiled Streak',     description: 'Achieved a 10-question winning streak!' },
+  { id: 'change_champ',      icon: '🧰',  label: 'Full Toolbox',          description: 'Completed all 4 sequence machine stations!' },
+  { id: 'district_champ',    icon: '⭐',  label: 'Machine Perfected',     description: 'Scored 3 stars in a workshop world!' },
+  { id: 'boss_slayer',       icon: '🛠️',  label: 'Malfunction Fixed',     description: 'Fixed a jammed machine boss in battle!' },
+  { id: 'century_scorer',    icon: '🔩',  label: 'Dedicated Tinkerer',    description: 'Answered over 20 questions in the workshop!' },
+  { id: 'money_master',      icon: '🏆',  label: 'Master Inventor Badge', description: 'Completed the full 5-phase RuleQuest journey!' },
 ];
 
 export function checkBadges(state) {

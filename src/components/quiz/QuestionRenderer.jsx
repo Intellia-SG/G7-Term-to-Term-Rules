@@ -1,7 +1,7 @@
 // src/components/quiz/QuestionRenderer.jsx
 import React from 'react';
 import './QuestionRenderer.css';
-import MoneyVisual from '../shared/MoneyVisual.jsx';
+import RuleMachineVisual from '../shared/RuleMachineVisual.jsx';
 
 export default function QuestionRenderer({
   question,
@@ -17,13 +17,13 @@ export default function QuestionRenderer({
   if (!question) return null;
 
   const { category, questionText, options, visual, visualData, hint1, hint2 } = question;
-  const categoryTag = category || 'MONEY MATH';
+  const categoryTag = category || 'SEQUENCE RULE';
 
   return (
     <div className="qr-wrap glass-card anim-slide-up">
       {/* Top category badge tag */}
       <div className="qr-category-badge">
-        <span className="cat-icon">🪙</span> {categoryTag}
+        <span className="cat-icon">⚙️</span> {categoryTag}
       </div>
 
       {/* Question text */}
@@ -32,7 +32,7 @@ export default function QuestionRenderer({
       {/* Visual aid if available */}
       {visual && visualData && (
         <div className="qr-visual">
-          <MoneyVisual type={visual} data={visualData} compact={true} />
+          <RuleMachineVisual type={visual} data={visualData} compact={true} />
         </div>
       )}
 
