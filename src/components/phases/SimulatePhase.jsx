@@ -1,18 +1,18 @@
 // src/components/phases/SimulatePhase.jsx
 import React, { useEffect, useRef } from 'react';
 import './SimulatePhase.css';
-import CoinRegisterStation from '../simulations/CoinRegisterStation.jsx';
-import PriceScannerStation from '../simulations/PriceScannerStation.jsx';
-import ChangeMakerStation from '../simulations/ChangeMakerStation.jsx';
-import ReceiptDetectiveStation from '../simulations/ReceiptDetectiveStation.jsx';
+import TheSequenceMachine from '../simulations/TheSequenceMachine.jsx';
+import CalibrateTheMachine from '../simulations/CalibrateTheMachine.jsx';
+import ReverseEngineerTheMachine from '../simulations/ReverseEngineerTheMachine.jsx';
+import SpotTheBrokenGear from '../simulations/SpotTheBrokenGear.jsx';
 import { useAudio } from '../../hooks/useAudio.js';
 import { simStationIntro } from '../../utils/narration.js';
 
 const STATIONS = [
-  { id: 0, label: 'A', name: 'Coin Register',     icon: '🪙', desc: 'Build exact target amounts' },
-  { id: 1, label: 'B', name: 'Market Scanner',    icon: '🛒', desc: 'Scan items & calculate totals' },
-  { id: 2, label: 'C', name: 'Change Maker',      icon: '🔄', desc: 'Calculate & dispense change' },
-  { id: 3, label: 'D', name: 'Receipt Detective', icon: '🔍', desc: 'Spot & fix receipt errors' },
+  { id: 0, label: 'A', name: 'Sequence Machine',   icon: '⚙️', desc: 'Concept Discovery Lab' },
+  { id: 1, label: 'B', name: 'Calibrate Machine',  icon: '🔧', desc: 'Build-to-Target Challenge' },
+  { id: 2, label: 'C', name: 'Reverse Engineer',   icon: '🔄', desc: 'Multi-Step Construction' },
+  { id: 3, label: 'D', name: 'Spot Broken Gear',   icon: '🔍', desc: 'Error-Detective' },
 ];
 
 export default function SimulatePhase({ state, dispatch }) {
