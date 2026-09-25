@@ -5,11 +5,11 @@ import { generateSessionQuestions } from '../utils/shuffle.js';
 import questionBank from '../data/questionBank.js';
 
 const JOURNEY = [
-  { num: '01', icon: '🔍', label: 'Wonder',   desc: 'Spark your curiosity' },
-  { num: '02', icon: '📖', label: 'Story',    desc: 'Oliver & Emma\'s market' },
-  { num: '03', icon: '🧪', label: 'Simulate', desc: '4 interactive labs' },
-  { num: '04', icon: '🎮', label: 'Practice', desc: '10 worlds & bosses' },
-  { num: '05', icon: '📓', label: 'Reflect',  desc: 'Review & scorecard' },
+  { num: '01', icon: '🔍', label: 'Wonder',   desc: 'The Mystery Machine' },
+  { num: '02', icon: '📖', label: 'Story',    desc: 'Zhi Hao, Nurul & Sprocket' },
+  { num: '03', icon: '🧪', label: 'Simulate', desc: '4 Sequence Labs' },
+  { num: '04', icon: '🎮', label: 'Practice', desc: '10 Worlds & Bosses' },
+  { num: '05', icon: '📓', label: 'Reflect',  desc: 'Review & Scorecard' },
 ];
 
 export default function IntroScreen({ state, dispatch }) {
@@ -28,26 +28,26 @@ export default function IntroScreen({ state, dispatch }) {
     <div className="intro-wrap">
       {/* Top Badge */}
       <div className="intro-top-badge">
-        ✨ Curriculum · Money, Coins, Notes &amp; Change Grade 2–5
+        ✨ Curriculum · Grade 7 · Term-to-Term Rules
       </div>
 
       {/* Main Title */}
       <h1 className="intro-title">
-        <span className="text-orange">Money</span> <span className="text-white">Quest</span>
+        <span className="text-orange">Rule</span> <span className="text-white">Quest</span>
       </h1>
-      <h2 className="intro-subtitle">MoneyQuest · Master Coins, Notes, Prices &amp; Making Change</h2>
+      <h2 className="intro-subtitle">RuleQuest · Uncover Sequence Machines &amp; Master Reverse Engineering</h2>
 
       {/* Mascot Row */}
       <div className="intro-mascot-row">
-        <div className="intro-mascot-circle">🐷</div>
+        <div className="intro-mascot-circle">🦫</div>
         <div className="intro-speech-bubble">
-          Hi! I'm Penny. Ready to explore the market,<br />count coins, and make exact change? 🪙💵
+          Hi! I'm Sprocket the Beaver. Ready to explore the workshop,<br />discover sequence rules, and run machines backwards? ⚙️🔧
         </div>
       </div>
 
       {/* Description */}
       <p className="intro-desc">
-        Learn how to recognise coins &amp; notes, add prices, convert between cents &amp; dollars, and calculate change like a pro shopkeeper!
+        Master term-to-term rules, single &amp; compound two-gear machines, reverse-engineering earlier terms, and Fibonacci-type sequences in an interactive inventor workshop!
       </p>
 
       {/* Journey Card */}

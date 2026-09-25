@@ -84,10 +84,10 @@ export default function SimulatePhase({ state, dispatch }) {
 
         {/* Station Content Area */}
         <div className="sim-station-area" role="tabpanel" key={s}>
-          {s === 0 && <CoinRegisterStation onComplete={() => handleStationComplete(0)} audioEnabled={state?.audioEnabled} />}
-          {s === 1 && <PriceScannerStation onComplete={() => handleStationComplete(1)} audioEnabled={state?.audioEnabled} />}
-          {s === 2 && <ChangeMakerStation onComplete={() => handleStationComplete(2)} audioEnabled={state?.audioEnabled} />}
-          {s === 3 && <ReceiptDetectiveStation onComplete={() => handleStationComplete(3)} audioEnabled={state?.audioEnabled} />}
+          {s === 0 && <TheSequenceMachine onComplete={() => handleStationComplete(0)} audioEnabled={state?.audioEnabled} />}
+          {s === 1 && <CalibrateTheMachine onComplete={() => handleStationComplete(1)} audioEnabled={state?.audioEnabled} />}
+          {s === 2 && <ReverseEngineerTheMachine onComplete={() => handleStationComplete(2)} audioEnabled={state?.audioEnabled} />}
+          {s === 3 && <SpotTheBrokenGear onComplete={() => handleStationComplete(3)} audioEnabled={state?.audioEnabled} />}
         </div>
 
         {/* Footer Navigation */}

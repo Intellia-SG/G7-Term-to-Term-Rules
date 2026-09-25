@@ -1,4 +1,6 @@
 // src/components/phases/ReflectPhase.jsx
+// Reflect Phase for RuleQuest (Grade 7 Term-to-Term Rules)
+
 import React, { useState, useEffect, useRef } from 'react';
 import './ReflectPhase.css';
 import Mascot from '../shared/Mascot.jsx';
@@ -11,29 +13,29 @@ import questionBank from '../../data/questionBank.js';
 
 const REFLECT_QUESTIONS = [
   {
-    q: "1. How many cents are in a one-dollar ($1.00) coin?",
+    q: "1. What is the difference between a sequence's first term and its term-to-term rule?",
     options: [
-      "100 cents",
-      "50 cents",
-      "10 cents",
+      "The first term is a starting number; the rule is an ACTION between consecutive terms",
+      "They are the exact same thing",
+      "The rule is always double the first term",
     ],
     correct: 0,
   },
   {
-    q: "2. Oliver pays with a $1.00 coin for an 85¢ muffin. How is his change calculated?",
+    q: "2. When running a compound rule (like 'multiply by 2, then add 5') in reverse, what must you do?",
     options: [
-      "Amount Paid − Price = $1.00 − 85¢ = 15¢",
-      "Add both numbers: $1.00 + 85¢ = $1.85",
-      "Change is always a fixed 50¢",
+      "Swap each operation for its opposite AND reverse the order they run in",
+      "Only swap the operations and keep the exact same order",
+      "Keep operations unchanged and just read the numbers backwards",
     ],
     correct: 0,
   },
   {
-    q: "3. What is the golden rule when adding prices in dollars and cents?",
+    q: "3. When verifying a proposed rule against a sequence, why must you check EVERY pair?",
     options: [
-      "Keep dollars with dollars and cents with cents",
-      "Ignore the decimal points completely",
-      "Always subtract the smaller number",
+      "A proposed rule can match the first pair but break at a later gap",
+      "Checking only the first pair is always mathematically sufficient",
+      "Only the last pair determines whether a rule is valid",
     ],
     correct: 0,
   },
@@ -86,9 +88,9 @@ export default function ReflectPhase({ state, dispatch }) {
       <div className="reflect-wrap">
         <div className="trophy-card glass-card anim-bounce-in">
           <div className="trophy-icon">🏆</div>
-          <h1 className="trophy-title headline">You're a Money Grand Master!</h1>
+          <h1 className="trophy-title headline">You're a Master Inventor!</h1>
           <p className="trophy-sub subheadline" style={{ color: 'var(--gold)' }}>
-            Money, Coins &amp; Change Mastery Complete ✅
+            Term-to-Term Rules &amp; Machine Reversal Complete ✅
           </p>
 
           {/* Stats Breakdown */}
@@ -154,7 +156,7 @@ export default function ReflectPhase({ state, dispatch }) {
       <div className="reflect-card glass-card anim-slide-up">
         <div className="reflect-header">
           <span className="reflect-badge">📓 Learning Reflection &amp; Scorecard</span>
-          <h2 className="reflect-title subheadline">Reflect on Your Money Journey</h2>
+          <h2 className="reflect-title subheadline">Reflect on Your Workshop Journey</h2>
         </div>
 
         <Mascot mood="curious" message="Let's check your key takeaways and review your scorecard!" size="sm" />
@@ -162,7 +164,7 @@ export default function ReflectPhase({ state, dispatch }) {
         {/* Self-assessment Concept Check */}
         <div className="reflect-quiz-container">
           <p className="body-text" style={{ color: 'var(--gold)', fontWeight: 800 }}>
-            🧠 Money Concept Reflection Check:
+            🧠 Sequence Rule Concept Check:
           </p>
           {REFLECT_QUESTIONS.map((qObj, qIdx) => (
             <div key={qIdx} className="reflect-q-item">
@@ -189,12 +191,12 @@ export default function ReflectPhase({ state, dispatch }) {
         {/* Journal Entry */}
         <div className="reflect-journal">
           <label className="reflect-label body-text" htmlFor="journal-input">
-            Write one key money rule or fact you mastered:
+            Which machine was hardest to run backwards, and why?
           </label>
           <textarea
             id="journal-input"
             className="reflect-textarea"
-            placeholder="e.g. 100 cents = $1.00, and Change = Amount Paid − Price!"
+            placeholder="e.g. Compound machines because you must both invert operations and reverse their order!"
             value={journal}
             onChange={e => setJournal(e.target.value)}
             rows={2}
@@ -204,9 +206,9 @@ export default function ReflectPhase({ state, dispatch }) {
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
             <span style={{ fontSize: '0.8rem', color: '#a0a0b8', alignSelf: 'center' }}>Quick insert:</span>
             {[
-              '100 cents = $1.00',
-              'Change = Amount Paid − Price',
-              'Keep cents with cents and dollars with dollars',
+              'Compound rules require opposite operations in reversed order',
+              'A rule is always an action, never just the starting number',
+              'Checking every pair ensures no hidden broken gears',
             ].map(ex => (
               <button
                 key={ex}
