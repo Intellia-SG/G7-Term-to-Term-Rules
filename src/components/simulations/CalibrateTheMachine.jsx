@@ -104,75 +104,92 @@ export default function CalibrateTheMachine({ onComplete, audioEnabled }) {
       </div>
 
       <div className="station-grid-2col">
-        {/* Left Column: Calibration Dials */}
+        {/* Left Column: Calibration Dials Side-by-Side */}
         <div className="station-col-left">
-          <div className="station-panel">
-            <div className="panel-title-row">
-              <span className="panel-badge">⚙️</span>
-              <h4 className="panel-title">Gear 1 Dial</h4>
+          <div className="gears-grid-2col">
+            {/* Gear 1 Dial */}
+            <div className="gear-subpanel">
+              <div className="panel-title-row">
+                <span className="panel-badge">1</span>
+                <h4 className="panel-title">Gear 1 Dial</h4>
+              </div>
+              <div className="op-toggle-grid">
+                {['add', 'subtract', 'multiply', 'divide'].map(op => (
+                  <button
+                    key={op}
+                    className={`op-select-btn ${gear1Op === op ? 'active' : ''}`}
+                    onClick={() => { sounds.click(); setGear1Op(op); }}
+                  >
+                    {op === 'add' && '+ Add'}
+                    {op === 'subtract' && '− Sub'}
+                    {op === 'multiply' && '× Mult'}
+                    {op === 'divide' && '÷ Div'}
+                  </button>
+                ))}
+              </div>
+              <div className="stepper-row compact-stepper">
+                <span className="stepper-label">Val:</span>
+                <button className="btn btn-outline btn-sm stepper-btn" onClick={() => adjustVal1(-1)} disabled={gear1Val <= 1}>−</button>
+                <span className="stepper-num">{gear1Val}</span>
+                <button className="btn btn-outline btn-sm stepper-btn" onClick={() => adjustVal1(1)} disabled={gear1Val >= 10}>+</button>
+              </div>
             </div>
-            <div className="op-toggle-grid">
-              {['add', 'subtract', 'multiply', 'divide'].map(op => (
+
+            {/* Gear 2 Dial */}
+            <div className="gear-subpanel">
+              <div className="panel-title-row" style={{ justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span className="panel-badge">2</span>
+                  <h4 className="panel-title">Gear 2</h4>
+                </div>
                 <button
-                  key={op}
-                  className={`op-select-btn ${gear1Op === op ? 'active' : ''}`}
-                  onClick={() => { sounds.click(); setGear1Op(op); }}
+                  className={`btn btn-sm ${gear2Active ? 'btn-primary' : 'btn-outline'}`}
+                  style={{ padding: '2px 6px', fontSize: '0.72rem', fontWeight: 800 }}
+                  onClick={() => { sounds.click(); setGear2Active(!gear2Active); }}
                 >
-                  {op === 'add' && '+ Add'}
-                  {op === 'subtract' && '− Subtract'}
-                  {op === 'multiply' && '× Multiply'}
-                  {op === 'divide' && '÷ Divide'}
+                  {gear2Active ? 'ON ✓' : 'OFF'}
                 </button>
-              ))}
-            </div>
-            <div className="stepper-row compact-stepper">
-              <span className="stepper-label">Value:</span>
-              <button className="btn btn-outline btn-sm stepper-btn" onClick={() => adjustVal1(-1)} disabled={gear1Val <= 1}>−</button>
-              <span className="stepper-num">{gear1Val}</span>
-              <button className="btn btn-outline btn-sm stepper-btn" onClick={() => adjustVal1(1)} disabled={gear1Val >= 10}>+</button>
+              </div>
+
+              {gear2Active ? (
+                <>
+                  <div className="op-toggle-grid">
+                    {['add', 'subtract', 'multiply'].map(op => (
+                      <button
+                        key={op}
+                        className={`op-select-btn ${gear2Op === op ? 'active' : ''}`}
+                        onClick={() => { sounds.click(); setGear2Op(op); }}
+                      >
+                        {op === 'add' && '+ Add'}
+                        {op === 'subtract' && '− Sub'}
+                        {op === 'multiply' && '× Mult'}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="stepper-row compact-stepper">
+                    <span className="stepper-label">Val:</span>
+                    <button className="btn btn-outline btn-sm stepper-btn" onClick={() => adjustVal2(-1)} disabled={gear2Val <= 1}>−</button>
+                    <span className="stepper-num">{gear2Val}</span>
+                    <button className="btn btn-outline btn-sm stepper-btn" onClick={() => adjustVal2(1)} disabled={gear2Val >= 10}>+</button>
+                  </div>
+                </>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '85px', textAlign: 'center' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '6px' }}>Single-step rule.</span>
+                  <button
+                    className="btn btn-outline btn-sm"
+                    style={{ fontSize: '0.72rem', padding: '2px 8px' }}
+                    onClick={() => { sounds.click(); setGear2Active(true); }}
+                  >
+                    + Add Gear 2
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="station-panel">
-            <div className="panel-title-row">
-              <span className="panel-badge">⚙️</span>
-              <h4 className="panel-title">Gear 2 Dial (Compound)</h4>
-              <button
-                className={`btn btn-sm ${gear2Active ? 'btn-primary' : 'btn-outline'}`}
-                style={{ marginLeft: 'auto', padding: '2px 8px', fontSize: '0.75rem' }}
-                onClick={() => { sounds.click(); setGear2Active(!gear2Active); }}
-              >
-                {gear2Active ? 'Gear 2 ON' : 'Gear 2 OFF'}
-              </button>
-            </div>
-
-            {gear2Active && (
-              <>
-                <div className="op-toggle-grid">
-                  {['add', 'subtract', 'multiply'].map(op => (
-                    <button
-                      key={op}
-                      className={`op-select-btn ${gear2Op === op ? 'active' : ''}`}
-                      onClick={() => { sounds.click(); setGear2Op(op); }}
-                    >
-                      {op === 'add' && '+ Add'}
-                      {op === 'subtract' && '− Subtract'}
-                      {op === 'multiply' && '× Multiply'}
-                    </button>
-                  ))}
-                </div>
-                <div className="stepper-row compact-stepper">
-                  <span className="stepper-label">Value:</span>
-                  <button className="btn btn-outline btn-sm stepper-btn" onClick={() => adjustVal2(-1)} disabled={gear2Val <= 1}>−</button>
-                  <span className="stepper-num">{gear2Val}</span>
-                  <button className="btn btn-outline btn-sm stepper-btn" onClick={() => adjustVal2(1)} disabled={gear2Val >= 10}>+</button>
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className="hint-pill">
-            <span>💡 Hint: {currentChall.hint}</span>
+          <div className="hint-pill" style={{ padding: '4px 10px', fontSize: '0.78rem' }}>
+            <span>💡 <strong>Hint:</strong> {currentChall.hint}</span>
           </div>
         </div>
 
@@ -182,7 +199,7 @@ export default function CalibrateTheMachine({ onComplete, audioEnabled }) {
           <div className="station-panel">
             <div className="panel-title-row">
               <span className="panel-badge">🎯</span>
-              <h4 className="panel-title">Target Sequence (Fixed Goal)</h4>
+              <h4 className="panel-title" style={{ fontSize: '0.88rem' }}>Target Sequence (Fixed Goal)</h4>
             </div>
             <RuleMachineVisual
               type="sequence-strip"
@@ -195,7 +212,7 @@ export default function CalibrateTheMachine({ onComplete, audioEnabled }) {
           <div className={`station-panel ${shake ? 'anim-shake' : ''}`}>
             <div className="panel-title-row">
               <span className="panel-badge">⚡</span>
-              <h4 className="panel-title">Your Live Machine Output</h4>
+              <h4 className="panel-title" style={{ fontSize: '0.88rem' }}>Your Live Machine Output</h4>
               <span className={`match-status-badge ${isMatch ? 'match-exact' : 'no-match'}`}>
                 {isMatch ? 'EXACT MATCH ✅' : 'NO MATCH ❌'}
               </span>
@@ -208,23 +225,23 @@ export default function CalibrateTheMachine({ onComplete, audioEnabled }) {
           </div>
 
           {/* Action Row */}
-          <div className="calibrate-actions-row">
-            <button className="btn btn-primary btn-md" onClick={handleCheck}>
+          <div className="calibrate-actions-row" style={{ marginTop: '2px' }}>
+            <button className="btn btn-primary btn-sm" onClick={handleCheck} style={{ minHeight: '34px', flex: 1 }}>
               Test Calibration 🔍
             </button>
-            <button className="btn btn-outline btn-md" onClick={nextChallenge}>
+            <button className="btn btn-outline btn-sm" onClick={nextChallenge} style={{ minHeight: '34px', flex: 1 }}>
               Try Next Target ➔
             </button>
           </div>
 
           {/* Completion CTA */}
-          <div className="station-footer-actions">
+          <div className="station-footer-actions" style={{ marginTop: '0', paddingTop: '2px' }}>
             {matchedOnce ? (
-              <button className="btn btn-green btn-lg w-full anim-pulse" onClick={onComplete}>
+              <button className="btn btn-green btn-md w-full anim-pulse" onClick={onComplete} style={{ minHeight: '36px' }}>
                 Complete Station B ✓
               </button>
             ) : (
-              <div className="completion-hint-text">
+              <div className="completion-hint-text" style={{ padding: '2px 0' }}>
                 Match the target sequence to calibrate the machine!
               </div>
             )}

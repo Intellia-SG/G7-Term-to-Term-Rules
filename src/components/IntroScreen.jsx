@@ -5,11 +5,11 @@ import { generateSessionQuestions } from '../utils/shuffle.js';
 import questionBank from '../data/questionBank.js';
 
 const JOURNEY = [
-  { num: '01', icon: '🔍', label: 'Wonder',   desc: 'The Mystery Machine' },
+  { num: '01', icon: '🔍', label: 'Wonder',   desc: 'Mystery machine alert' },
   { num: '02', icon: '📖', label: 'Story',    desc: 'Zhi Hao, Nurul & Sprocket' },
-  { num: '03', icon: '🧪', label: 'Simulate', desc: '4 Sequence Labs' },
-  { num: '04', icon: '🎮', label: 'Practice', desc: '10 Worlds & Bosses' },
-  { num: '05', icon: '📓', label: 'Reflect',  desc: 'Review & Scorecard' },
+  { num: '03', icon: '🧪', label: 'Simulate', desc: '4 sequence labs' },
+  { num: '04', icon: '🎮', label: 'Practice', desc: '10 worlds & bosses' },
+  { num: '05', icon: '📓', label: 'Reflect',  desc: 'Review & scorecard' },
 ];
 
 export default function IntroScreen({ state, dispatch }) {
@@ -28,35 +28,34 @@ export default function IntroScreen({ state, dispatch }) {
     <div className="intro-wrap">
       {/* Top Badge */}
       <div className="intro-top-badge">
-        ✨ Curriculum · Grade 7 · Term-to-Term Rules
+        ✨ Curriculum · Term-to-Term Rules &amp; Sequences Grade 7
       </div>
 
-      {/* Main Title */}
-      <h1 className="intro-title">
-        <span className="text-orange">Rule</span> <span className="text-white">Quest</span>
-      </h1>
-      <h2 className="intro-subtitle">RuleQuest · Uncover Sequence Machines &amp; Master Reverse Engineering</h2>
+      {/* Main Title & Subtitle */}
+      <div className="intro-title-group">
+        <h1 className="intro-title">
+          <span className="text-orange">Rule</span> <span className="text-white">Quest</span>
+        </h1>
+        <h2 className="intro-subtitle">
+          Master Term-to-Term Rules, Sequence Machines, and Reverse Arithmetic
+        </h2>
+      </div>
 
-      {/* Mascot Row */}
+      {/* Mascot Speech Row */}
       <div className="intro-mascot-row">
         <div className="intro-mascot-circle">🦫</div>
         <div className="intro-speech-bubble">
-          Hi! I'm Sprocket the Beaver. Ready to explore the workshop,<br />discover sequence rules, and run machines backwards? ⚙️🔧
+          Hi! I'm Sprocket. The workshop sequence machines are jammed! Check every gap, formulate term-to-term rules, and reverse operations to save the day! ⚙️🔧
         </div>
       </div>
-
-      {/* Description */}
-      <p className="intro-desc">
-        Master term-to-term rules, single &amp; compound two-gear machines, reverse-engineering earlier terms, and Fibonacci-type sequences in an interactive inventor workshop!
-      </p>
 
       {/* Journey Card */}
       <div className="journey-card">
         <div className="journey-card-title">YOUR LEARNING JOURNEY · CLICK ANY PHASE TO START</div>
 
         <div className="journey-steps-container">
-          <div className="journey-row top-row">
-            {JOURNEY.slice(0, 3).map((j, i) => (
+          <div className="journey-row">
+            {JOURNEY.map((j, i) => (
               <React.Fragment key={j.num}>
                 <div
                   className="journey-step-item clickable-step"
@@ -71,59 +70,38 @@ export default function IntroScreen({ state, dispatch }) {
                     <span className="journey-item-desc">{j.desc}</span>
                   </div>
                 </div>
-                <span className={`journey-arrow ${i === 2 ? 'fade-arrow' : ''}`}>→</span>
-              </React.Fragment>
-            ))}
-          </div>
-
-          <div className="journey-row bottom-row">
-            {JOURNEY.slice(3, 5).map((j, i) => (
-              <React.Fragment key={j.num}>
-                <div
-                  className="journey-step-item clickable-step"
-                  onClick={() => dispatch({ type: 'SET_PHASE', payload: j.label.toLowerCase() === 'practice' ? 'play' : j.label.toLowerCase() })}
-                  role="button"
-                  tabIndex={0}
-                  title={`Click to open ${j.label} phase`}
-                >
-                  <span className="journey-icon-circle">{j.icon}</span>
-                  <div className="journey-text-col">
-                    <span className="journey-item-title">{j.label}</span>
-                    <span className="journey-item-desc">{j.desc}</span>
-                  </div>
-                </div>
-                {i === 0 && <span className="journey-arrow">→</span>}
+                {i < JOURNEY.length - 1 && <span className="journey-arrow">→</span>}
               </React.Fragment>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Actions */}
+      {/* Main CTA */}
       <div className="intro-ctas">
         <button className="btn btn-primary btn-lg intro-cta-main" onClick={startFresh}>
           🚀 Begin Your Journey!
         </button>
         {hasSaved && (
-          <button className="btn btn-outline" onClick={resumeSession} style={{ marginTop: '10px' }}>
+          <button className="btn btn-outline intro-cta-resume" onClick={resumeSession}>
             ↩ Resume Session
           </button>
         )}
       </div>
 
-      {/* Bottom Cards */}
+      {/* Bottom Pills */}
       <div className="intro-bottom-cards">
-        <div className="bottom-card">
-          <div className="bottom-card-icon" style={{ color: '#ff6b6b' }}>🎯</div>
-          <div>100 Questions</div>
+        <div className="bottom-pill">
+          <span className="bottom-pill-icon">🎯</span>
+          <span>100 Questions</span>
         </div>
-        <div className="bottom-card">
-          <div className="bottom-card-icon" style={{ color: '#feca57' }}>🪙</div>
-          <div>Coins &amp; Notes</div>
+        <div className="bottom-pill">
+          <span className="bottom-pill-icon">📈</span>
+          <span>Sequences &amp; Machines</span>
         </div>
-        <div className="bottom-card">
-          <div className="bottom-card-icon" style={{ color: '#66bb6a' }}>✨</div>
-          <div>Badges &amp; XP</div>
+        <div className="bottom-pill">
+          <span className="bottom-pill-icon">✨</span>
+          <span>Badges &amp; XP</span>
         </div>
       </div>
     </div>

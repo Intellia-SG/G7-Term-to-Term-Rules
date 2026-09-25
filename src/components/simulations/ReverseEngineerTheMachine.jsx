@@ -117,14 +117,14 @@ export default function ReverseEngineerTheMachine({ onComplete, audioEnabled }) 
         <div className="station-col-left">
           <div className="station-panel">
             <div className="panel-title-row">
-              <span className="panel-badge">Step 1</span>
+              <span className="panel-badge">1</span>
               <h4 className="panel-title">Identify the Forward Rule</h4>
             </div>
             <p className="panel-subtext">
               Test candidate rules against <strong>every</strong> visible pair (15 ➔ 31 ➔ 63):
             </p>
 
-            <div className="candidate-rules-list">
+            <div className="candidate-rules-grid">
               {candidateRules.map(cand => (
                 <button
                   key={cand.id}
@@ -146,7 +146,7 @@ export default function ReverseEngineerTheMachine({ onComplete, audioEnabled }) 
 
           {/* Visual Aid */}
           <div className="station-panel">
-            <h4 className="panel-title">Machine Mode</h4>
+            <h4 className="panel-title" style={{ fontSize: '0.85rem' }}>Machine Mode Diagram</h4>
             {stage1Passed ? (
               <RuleMachineVisual
                 type="reverse-flow"
@@ -176,52 +176,55 @@ export default function ReverseEngineerTheMachine({ onComplete, audioEnabled }) 
         <div className="station-col-right">
           <div className="station-panel">
             <div className="panel-title-row">
-              <span className="panel-badge">Step 2</span>
+              <span className="panel-badge">2</span>
               <h4 className="panel-title">Run the Machine in Reverse</h4>
             </div>
             <p className="panel-subtext">
-              Forward rule: <strong>Double, then add 1</strong>.<br />
-              Reverse rule: <strong>Subtract 1, then halve (÷2)</strong>!
+              Forward: <strong>Double, then add 1</strong> ➔ Reverse: <strong>Subtract 1, then halve (÷2)</strong>!
             </p>
 
             <div className="walkback-step-card">
               <div className="walkback-row">
-                <span className="walkback-label">Term 3:</span>
-                <span className="walkback-val">15</span>
+                <span className="walkback-label">Known Later Value:</span>
+                <span className="walkback-val">Term 3 = 15</span>
               </div>
 
-              <div className="walkback-input-group">
-                <label className="walkback-field-label">
-                  Step 1: Reverse back to <strong>Term 2</strong> ( (15 − 1) ÷ 2 ):
-                </label>
-                <input
-                  type="number"
-                  className="walkback-input"
-                  placeholder="Enter Term 2"
-                  value={stepBackTerm2}
-                  onChange={(e) => setStepBackTerm2(e.target.value)}
-                  disabled={!stage1Passed || stage2Passed}
-                />
-              </div>
+              {/* 2-Column Inputs for Term 2 and Term 1 */}
+              <div className="walkback-inputs-grid">
+                <div className="walkback-input-group">
+                  <label className="walkback-field-label">
+                    Step 1: <strong>Term 2</strong> ((15 − 1) ÷ 2):
+                  </label>
+                  <input
+                    type="number"
+                    className="walkback-input"
+                    placeholder="Enter Term 2"
+                    value={stepBackTerm2}
+                    onChange={(e) => setStepBackTerm2(e.target.value)}
+                    disabled={!stage1Passed || stage2Passed}
+                  />
+                </div>
 
-              <div className="walkback-input-group">
-                <label className="walkback-field-label">
-                  Step 2: Reverse back to <strong>Term 1</strong> ( (Term 2 − 1) ÷ 2 ):
-                </label>
-                <input
-                  type="number"
-                  className="walkback-input"
-                  placeholder="Enter Term 1"
-                  value={stepBackTerm1}
-                  onChange={(e) => setStepBackTerm1(e.target.value)}
-                  disabled={!stage1Passed || stage2Passed}
-                />
+                <div className="walkback-input-group">
+                  <label className="walkback-field-label">
+                    Step 2: <strong>Term 1</strong> ((Term 2 − 1) ÷ 2):
+                  </label>
+                  <input
+                    type="number"
+                    className="walkback-input"
+                    placeholder="Enter Term 1"
+                    value={stepBackTerm1}
+                    onChange={(e) => setStepBackTerm1(e.target.value)}
+                    disabled={!stage1Passed || stage2Passed}
+                  />
+                </div>
               </div>
 
               <button
-                className="btn btn-primary btn-md"
+                className="btn btn-primary btn-sm"
                 onClick={handleVerifyReverse}
                 disabled={!stage1Passed || stage2Passed || !stepBackTerm1 || !stepBackTerm2}
+                style={{ minHeight: '34px', marginTop: '2px' }}
               >
                 Verify Starting Input 🔍
               </button>
@@ -236,13 +239,13 @@ export default function ReverseEngineerTheMachine({ onComplete, audioEnabled }) 
           </div>
 
           {/* Completion CTA */}
-          <div className="station-footer-actions">
+          <div className="station-footer-actions" style={{ marginTop: '0', paddingTop: '2px' }}>
             {stage2Passed ? (
-              <button className="btn btn-green btn-lg w-full anim-pulse" onClick={onComplete}>
+              <button className="btn btn-green btn-md w-full anim-pulse" onClick={onComplete} style={{ minHeight: '36px' }}>
                 Complete Station C ✓
               </button>
             ) : (
-              <div className="completion-hint-text">
+              <div className="completion-hint-text" style={{ padding: '2px 0' }}>
                 Complete Step 1 and recover Term 1 to finish reverse-engineering!
               </div>
             )}

@@ -1,5 +1,5 @@
 // src/utils/scoring.js
-// XP and Star calculation algorithms for MoneyQuest
+// XP and Star calculation algorithms for RuleQuest
 
 export function calcXP(attempts = 1, hints = 0, streak = 0) {
   let base = 10;

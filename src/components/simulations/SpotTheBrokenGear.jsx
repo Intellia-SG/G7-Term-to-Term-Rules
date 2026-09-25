@@ -159,7 +159,7 @@ export default function SpotTheBrokenGear({ onComplete, audioEnabled }) {
             </div>
 
             {selectedLine && currentCase.lines.find(l => l.num === selectedLine)?.isError && (
-              <div className="feedback-note note-success anim-slide-up" style={{ marginTop: '8px' }}>
+              <div className="feedback-note note-success anim-slide-up" style={{ marginTop: '4px', fontSize: '0.8rem' }}>
                 🎯 <strong>Flaw Identified:</strong> {currentCase.flawExplanation}
               </div>
             )}
@@ -199,27 +199,27 @@ export default function SpotTheBrokenGear({ onComplete, audioEnabled }) {
             </div>
 
             {solvedCurrent && (
-              <div className="feedback-note note-success anim-slide-up" style={{ marginTop: '10px' }}>
+              <div className="feedback-note note-success anim-slide-up" style={{ marginTop: '4px', fontSize: '0.8rem' }}>
                 🎉 Broken gear repaired! Case solved successfully.
               </div>
             )}
           </div>
 
           {/* Action to switch cases */}
-          <div className="calibrate-actions-row">
-            <button className="btn btn-outline btn-md" onClick={nextCase}>
+          <div className="calibrate-actions-row" style={{ marginTop: '2px' }}>
+            <button className="btn btn-outline btn-sm w-full" onClick={nextCase} style={{ minHeight: '34px' }}>
               Inspect Another Case ➔
             </button>
           </div>
 
           {/* Completion CTA */}
-          <div className="station-footer-actions">
+          <div className="station-footer-actions" style={{ marginTop: '0', paddingTop: '2px' }}>
             {allSolved ? (
-              <button className="btn btn-green btn-lg w-full anim-pulse" onClick={onComplete}>
+              <button className="btn btn-green btn-md w-full anim-pulse" onClick={onComplete} style={{ minHeight: '36px' }}>
                 Complete Station D ✓
               </button>
             ) : (
-              <div className="completion-hint-text">
+              <div className="completion-hint-text" style={{ padding: '2px 0' }}>
                 Tap the flawed line and select the fix to complete this station!
               </div>
             )}

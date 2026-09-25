@@ -29,6 +29,14 @@
   box-sizing: border-box;
 }
 
+.phase-content.is-intro {
+  height: 100vh;
+  height: 100dvh;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
 /* ─── Header & Navigation ────────────────────────────────────────────────── */
 .app-header {
   position: fixed;
