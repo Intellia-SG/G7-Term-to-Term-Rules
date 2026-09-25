@@ -37,21 +37,41 @@ function shuffleArray(arr) {
 }
 
 function makeUniqueOptions(correctAnswer, distractors) {
-  const strCorrect = String(correctAnswer);
-  const filtered = Array.from(new Set(distractors.map(d => String(d)))).filter(d => d !== strCorrect);
+  const strCorrect = String(correctAnswer).trim();
+  const set = new Set();
+  set.add(strCorrect);
 
-  while (filtered.length < 3) {
-    const num = parseFloat(strCorrect);
-    if (!isNaN(num)) {
-      const offset = (filtered.length + 1) * 2;
-      filtered.push(String(num + offset));
-    } else {
-      filtered.push(`Option ${filtered.length + 1}`);
+  const finalDistractors = [];
+  for (const d of distractors) {
+    const s = String(d).trim();
+    if (!set.has(s) && s.length > 0) {
+      set.add(s);
+      finalDistractors.push(s);
+      if (finalDistractors.length === 3) break;
     }
   }
 
-  const selectedDistractors = filtered.slice(0, 3);
-  const options = shuffleArray([strCorrect, ...selectedDistractors]);
+  let counter = 1;
+  while (finalDistractors.length < 3) {
+    const num = parseFloat(strCorrect);
+    if (!isNaN(num)) {
+      const candidate = String(num + counter * 3);
+      if (!set.has(candidate)) {
+        set.add(candidate);
+        finalDistractors.push(candidate);
+      }
+      counter++;
+    } else {
+      const candidate = `Alternative ${counter}`;
+      if (!set.has(candidate)) {
+        set.add(candidate);
+        finalDistractors.push(candidate);
+      }
+      counter++;
+    }
+  }
+
+  const options = shuffleArray([strCorrect, ...finalDistractors]);
   return { options, correctAnswer: strCorrect };
 }
 
@@ -279,7 +299,7 @@ function genWorld4(qIdx) {
     explanation: `To work backwards, apply the opposite operation: the reverse of "${ruleStr.toLowerCase()}" is "${formatRuleString(revOp).toLowerCase()}." Working back gives ${correct}.`,
     hint1: `To go backwards in a sequence, perform the inverse (opposite) operation.`,
     hint2: `If the forward rule adds, subtract! If the forward rule multiplies, divide!`,
-    visualData: { laterTerm: p.laterTerm, laterIndex: `Term ${p.laterIdx}`, steps: [revOp], targetIndex: `Term ${p.targetIdx}`, targetVal: '?' },
+    visualData: { laterTerm: p.laterTerm, laterIndex: `Term ${p.laterIdx}`, steps: [revOp], targetIndex: `Term ${p.targetIdx}`, targetVal: '?', stepsBack: p.laterIdx - p.targetIdx },
   };
 }
 
