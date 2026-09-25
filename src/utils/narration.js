@@ -1,6 +1,6 @@
 // src/utils/narration.js
-// Narration script builder for MoneyQuest
-// Strictly matches on-screen text 1:1
+// Narration script builder for RuleQuest (Grade 7 Term-to-Term Rules)
+// Strictly follows PRD §11 content rules and maintains 1:1 on-screen parity
 
 export const say       = (text) => ({ text, style: 'statement' });
 export const ask       = (text) => ({ text, style: 'question' });
@@ -12,40 +12,38 @@ export const encourage = (text) => ({ text, style: 'encouragement' });
 
 export function wonderNarration() {
   return [
-    say("Welcome to MoneyQuest! Let's investigate the big money mystery!"),
-    say("If Oliver has a shiny two-dollar coin, three twenty-cent coins, and one ten-cent coin… that makes two dollars and seventy cents in total."),
-    ask("Can he buy an eighty-five cent muffin and a fifty-cent pencil, and how much change will he get back?"),
-    cheer("Let's investigate how counting coins and making change works!"),
+    say("Welcome to RuleQuest! Let's uncover the secrets of the workshop's sequence machines!"),
+    say("A dusty machine in the workshop's attic hums to life. Feed it a number, and out comes another — but nobody remembers what it does!"),
+    ask("Can you figure out the term-to-term rule… and run the machine backwards to find out where the sequence started?"),
+    cheer("Let's investigate how sequence machines work and how to run them backwards!"),
   ];
 }
 
 export function storyNarration(panel) {
   const scripts = [
     [
-      say("Oliver had been saving up all week by helping with chores at home."),
-      say("On Saturday morning, his mum smiled and handed him some pocket money — a shiny two-dollar coin, three twenty-cent coins, and one ten-cent coin."),
-      think("How much money do I have altogether? Oliver wondered, spreading the coins out on the table."),
-      say("He carefully added them up: two dollars, then sixty cents, then ten cents more."),
-      cheer("I have two dollars and seventy cents! he cheered proudly."),
+      say("Deep in the workshop's attic, Zhi Hao and Nurul wiped a thick layer of dust from an antique contraption."),
+      say("Brass gears hummed as Zhi Hao turned the crank. Nurul dropped in a numbered token reading 4, and the machine chimed, spitting out 9!"),
+      say("Feeding 9 back into the hopper produced 14, and 14 turned into 19."),
+      think("Look at the sequence! Nurul exclaimed. 4, 9, 14, 19… but what is the machine actually doing to each number?"),
     ],
     [
-      say("At the school market, Oliver's eyes went wide at all the stalls."),
-      say("He spotted a delicious-looking muffin with a price tag that read eighty-five cents."),
-      ask("Do I have enough money to buy it? he asked nervously."),
-      say("Emma, who was helping at the stall, grinned. It's simple! Your twenty-cent coins and ten-cent coin make seventy cents. You need eighty-five cents, so you need fifteen cents more."),
-      cheer("You have two dollars and seventy cents in total, so you definitely have enough!"),
+      say("I know the rule! Nurul declared proudly. The rule is 4!"),
+      say("Suddenly, Sprocket the Beaver popped up from behind a stack of blueprints, wagging his tail. Hold your gears, Nurul! Four is just where the sequence started."),
+      emphasize("A term-to-term rule is an ACTION — it tells you how to travel from one term to the next!"),
+      say("Zhi Hao nodded: From 4 to 9 is add 5. From 9 to 14 is add 5. From 14 to 19 is add 5. The rule is 'Add 5', and it checks out across every single pair!"),
     ],
     [
-      say("Oliver decided to buy the muffin. He handed over his one-dollar coin."),
-      say("Emma smiled and opened the till. Your muffin costs eighty-five cents, and you gave me one dollar. So I need to give you back the difference!"),
-      say("She counted carefully and placed one ten-cent coin and one five-cent coin into Oliver's palm."),
-      cheer("That's fifteen cents change! Penny the Piggy Bank bounced excitedly. Change is the money you get back when you pay MORE than the price! One dollar minus eighty-five cents equals fifteen cents."),
+      say("Sprocket led them to a grander contraption with two interlocking gears."),
+      say("Some machines use compound rules — two actions in a chain! For example, double the number, then subtract 3."),
+      say("Nurul watched in awe: 5 doubled is 10, minus 3 gives 7. Then 7 doubled is 14, minus 3 gives 11!"),
+      emphasize("Now for the master trick, whispered Sprocket. To run a compound machine in reverse, you must do two things: swap every operation for its opposite, AND reverse the order they run in!"),
     ],
     [
-      say("By the end of the market day, Oliver had bought a muffin for eighty-five cents, a pencil for fifty cents, and a sticker pack for one dollar and twenty cents."),
-      say("He spent two dollars and fifty-five cents in total! Starting with two dollars and seventy cents, he had fifteen cents left over."),
-      say("I can add and subtract money just like regular numbers, Oliver said happily."),
-      cheer("Emma high-fived him. You're a money master now, Oliver! Penny jingled with joy."),
+      say("At the centre of the workshop stood the oldest machine of all, its starting dial locked. Its 3rd term read 17, and its rule was 'double, then add 1.'"),
+      say("Let's work backwards to find where it began! Zhi Hao said. The reverse rule is: subtract 1, then halve!"),
+      say("Nurul took the controls: 17 minus 1 is 16, halved gives 8. Then 8 minus 1 is 7... wait! Term 1 was 3!"),
+      cheer("The brass dial clicked into place, spinning smoothly. You've mastered the sequence machine! Sprocket cheered."),
     ],
   ];
 
@@ -55,20 +53,20 @@ export function storyNarration(panel) {
 export function simStationIntro(stationIdx) {
   const intros = [
     [
-      instruct("Welcome to Station A — Coin Counter and Register Lab!"),
-      instruct("Tap the coins in the tray to build the exact target amount shown. Tap any coin in your purse to remove it. Try using the fewest coins possible!"),
+      instruct("Welcome to Station A — The Sequence Machine Lab!"),
+      instruct("Set your starting input number and pick your operation gears to see numbers flow through the machine and generate a live sequence!"),
     ],
     [
-      instruct("Welcome to Station B — Supermarket Scanner and Price Matcher!"),
-      instruct("Scan items on the market conveyor, see the prices print on your receipt, and solve the shopping budget challenges!"),
+      instruct("Welcome to Station B — Calibrate the Machine!"),
+      instruct("Tune the machine's gears and operation values using the plus and minus controls to match the target sequence!"),
     ],
     [
-      instruct("Welcome to Station C — The Cashier Change Maker!"),
-      instruct("You are the shopkeeper! A customer buys an item and pays with a larger coin or note. Calculate the change and dispense the exact coins from the till drawer!"),
+      instruct("Welcome to Station C — Reverse Engineer the Machine!"),
+      instruct("Inspect the jammed machine's later terms, test candidate operations across consecutive pairs, and step backwards to recover Term 1!"),
     ],
     [
-      instruct("Welcome to Station D — Receipt Detective!"),
-      instruct("Detective Penny has found receipts with change calculation errors. Inspect the receipt, spot the mistake, and fix the amount!"),
+      instruct("Welcome to Station D — Spot the Broken Gear!"),
+      instruct("Inspect the apprentice's working log, tap the line with the flaw, and select the correct repair!"),
     ],
   ];
 
@@ -83,58 +81,58 @@ export function playQuestionNarration(questionText) {
 
 export function playCorrectNarration(streak = 1) {
   if (streak >= 5) {
-    return [cheer("Incredible streak! You are unstoppable! 🔥")];
+    return [cheer("Incredible streak! You are in top gear! 🔥")];
   }
   if (streak >= 3) {
     return [cheer("Awesome! Three in a row! ⭐")];
   }
-  return [cheer("Spot on! That's correct! 🎉")];
+  return [cheer("Spot on! That gear turned perfectly! 🎉")];
 }
 
 export function playWrongNarration() {
   return [
-    think("Not quite — check the hint, count the coins carefully, and try again! 💡")
+    think("Not quite — check the hint, test every pair, and try again! 💡")
   ];
 }
 
 export function playHint1Narration() {
   return [
-    encourage("Here's your first hint! Look at the biggest coins or dollars first.")
+    encourage("Here's your first hint! Look at the transition between consecutive terms.")
   ];
 }
 
 export function playHint2Narration() {
   return [
-    encourage("Here's your final clue! Break down the dollars and cents step by step.")
+    encourage("Here's your final clue! Remember that a term-to-term rule is an action, not a starting number.")
   ];
 }
 
 export function districtCompleteNarration() {
   return [
-    cheer("World Complete! Spectacular job on this money district! 🌟")
+    cheer("World Complete! Spectacular job on this workshop machine world! 🌟")
   ];
 }
 
 export function bossStartNarration() {
   return [
-    emphasize("The Boss Battle begins! Answer correctly to defeat the boss and claim your badge!")
+    emphasize("The Boss Battle begins! Repair the malfunctioning machine by answering every question correctly!")
   ];
 }
 
 export function bossWinNarration() {
   return [
-    cheer("Victory! You defeated the boss and claimed the World Badge! 👑")
+    cheer("Victory! You repaired the rogue machine and claimed your Workshop Badge! 🛠️")
   ];
 }
 
 export function reflectNarration() {
   return [
-    say("Welcome to the Reflect Phase! Let's review the key money concepts and check your scorecard! 📓")
+    say("Welcome to the Reflect Phase! Let's review the golden rules of term-to-term sequences and check your scorecard! 📓")
   ];
 }
 
 export function reflectCompleteNarration() {
   return [
-    cheer("Outstanding! You have mastered money, coins, notes, and making change! You are a true Money Master! 🏆")
+    cheer("Outstanding! You have mastered term-to-term rules, compound machines, and reverse engineering! You are a Chief Engineer! 🏆")
   ];
 }

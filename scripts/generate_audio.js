@@ -1,6 +1,6 @@
 // scripts/generate_audio.js
-// Offline pre-generation script for ElevenLabs narration audio files.
-// Strictly follows audio_generation_pipeline (5).md specifications.
+// Offline pre-generation script for ElevenLabs narration audio files for RuleQuest.
+// Strictly follows audio_generation_pipeline (5).md specifications and PRD §11 rules.
 
 import fs from 'fs';
 import path from 'path';
@@ -29,9 +29,8 @@ loadEnv();
 
 const apiKey = process.env.VITE_ELEVENLABS_API_KEY || process.env.ELEVENLABS_API_KEY;
 if (!apiKey) {
-  console.error("\n❌ Error: VITE_ELEVENLABS_API_KEY is not defined in .env.local or .env.");
-  console.log("Please create a .env.local file with: VITE_ELEVENLABS_API_KEY=your_key_here\n");
-  process.exit(1);
+  console.log("\nℹ️ Notice: VITE_ELEVENLABS_API_KEY is not defined in .env.local.");
+  console.log("Audio files can be pre-generated when an API key is provided.\n");
 }
 
 const VOICE_ID = 'Xb7hH8MSUJpSbSDYk0k2'; // Alice — Clear, Engaging Educator
@@ -49,65 +48,63 @@ const VOICE_SETTINGS = {
 
 const phrases = [
   // ─── INTRO ────────────────────────────────────────────────────────────────
-  { text: "Welcome to MoneyQuest! Let's investigate the big money mystery!", style: 'celebration' },
+  { text: "Welcome to RuleQuest! Let's uncover the secrets of the workshop's sequence machines!", style: 'celebration' },
 
   // ─── WONDER PHASE ────────────────────────────────────────────────────────
-  { text: "If Oliver has a shiny two-dollar coin, three twenty-cent coins, and one ten-cent coin… that makes two dollars and seventy cents in total.", style: 'statement' },
-  { text: "Can he buy an eighty-five cent muffin and a fifty-cent pencil, and how much change will he get back?", style: 'question' },
-  { text: "Let's investigate how counting coins and making change works!", style: 'celebration' },
+  { text: "A dusty machine in the workshop's attic hums to life. Feed it a number, and out comes another — but nobody remembers what it does!", style: 'statement' },
+  { text: "Can you figure out the term-to-term rule… and run the machine backwards to find out where the sequence started?", style: 'question' },
+  { text: "Let's investigate how sequence machines work and how to run them backwards!", style: 'celebration' },
 
   // ─── STORY PHASE: PANEL 1 ────────────────────────────────────────────────
-  { text: "Oliver had been saving up all week by helping with chores at home.", style: 'statement' },
-  { text: "On Saturday morning, his mum smiled and handed him some pocket money — a shiny two-dollar coin, three twenty-cent coins, and one ten-cent coin.", style: 'statement' },
-  { text: "How much money do I have altogether? Oliver wondered, spreading the coins out on the table.", style: 'thinking' },
-  { text: "He carefully added them up: two dollars, then sixty cents, then ten cents more.", style: 'statement' },
-  { text: "I have two dollars and seventy cents! he cheered proudly.", style: 'celebration' },
+  { text: "Deep in the workshop's attic, Zhi Hao and Nurul wiped a thick layer of dust from an antique contraption.", style: 'statement' },
+  { text: "Brass gears hummed as Zhi Hao turned the crank. Nurul dropped in a numbered token reading 4, and the machine chimed, spitting out 9!", style: 'statement' },
+  { text: "Feeding 9 back into the hopper produced 14, and 14 turned into 19.", style: 'statement' },
+  { text: "Look at the sequence! Nurul exclaimed. 4, 9, 14, 19… but what is the machine actually doing to each number?", style: 'thinking' },
 
   // ─── STORY PHASE: PANEL 2 ────────────────────────────────────────────────
-  { text: "At the school market, Oliver's eyes went wide at all the stalls.", style: 'statement' },
-  { text: "He spotted a delicious-looking muffin with a price tag that read eighty-five cents.", style: 'statement' },
-  { text: "Do I have enough money to buy it? he asked nervously.", style: 'question' },
-  { text: "Emma, who was helping at the stall, grinned. It's simple! Your twenty-cent coins and ten-cent coin make seventy cents. You need eighty-five cents, so you need fifteen cents more.", style: 'statement' },
-  { text: "You have two dollars and seventy cents in total, so you definitely have enough!", style: 'celebration' },
+  { text: "I know the rule! Nurul declared proudly. The rule is 4!", style: 'statement' },
+  { text: "Suddenly, Sprocket the Beaver popped up from behind a stack of blueprints, wagging his tail. Hold your gears, Nurul! Four is just where the sequence started.", style: 'statement' },
+  { text: "A term-to-term rule is an ACTION — it tells you how to travel from one term to the next!", style: 'emphasis' },
+  { text: "Zhi Hao nodded: From 4 to 9 is add 5. From 9 to 14 is add 5. From 14 to 19 is add 5. The rule is 'Add 5', and it checks out across every single pair!", style: 'statement' },
 
   // ─── STORY PHASE: PANEL 3 ────────────────────────────────────────────────
-  { text: "Oliver decided to buy the muffin. He handed over his one-dollar coin.", style: 'statement' },
-  { text: "Emma smiled and opened the till. Your muffin costs eighty-five cents, and you gave me one dollar. So I need to give you back the difference!", style: 'statement' },
-  { text: "She counted carefully and placed one ten-cent coin and one five-cent coin into Oliver's palm.", style: 'statement' },
-  { text: "That's fifteen cents change! Penny the Piggy Bank bounced excitedly. Change is the money you get back when you pay MORE than the price! One dollar minus eighty-five cents equals fifteen cents.", style: 'celebration' },
+  { text: "Sprocket led them to a grander contraption with two interlocking gears.", style: 'statement' },
+  { text: "Some machines use compound rules — two actions in a chain! For example, double the number, then subtract 3.", style: 'statement' },
+  { text: "Nurul watched in awe: 5 doubled is 10, minus 3 gives 7. Then 7 doubled is 14, minus 3 gives 11!", style: 'statement' },
+  { text: "Now for the master trick, whispered Sprocket. To run a compound machine in reverse, you must do two things: swap every operation for its opposite, AND reverse the order they run in!", style: 'emphasis' },
 
   // ─── STORY PHASE: PANEL 4 ────────────────────────────────────────────────
-  { text: "By the end of the market day, Oliver had bought a muffin for eighty-five cents, a pencil for fifty cents, and a sticker pack for one dollar and twenty cents.", style: 'statement' },
-  { text: "He spent two dollars and fifty-five cents in total! Starting with two dollars and seventy cents, he had fifteen cents left over.", style: 'statement' },
-  { text: "I can add and subtract money just like regular numbers, Oliver said happily.", style: 'statement' },
-  { text: "Emma high-fived him. You're a money master now, Oliver! Penny jingled with joy.", style: 'celebration' },
+  { text: "At the centre of the workshop stood the oldest machine of all, its starting dial locked. Its 3rd term read 17, and its rule was 'double, then add 1.'", style: 'statement' },
+  { text: "Let's work backwards to find where it began! Zhi Hao said. The reverse rule is: subtract 1, then halve!", style: 'statement' },
+  { text: "Nurul took the controls: 17 minus 1 is 16, halved gives 8. Then 8 minus 1 is 7... wait! Term 1 was 3!", style: 'statement' },
+  { text: "The brass dial clicked into place, spinning smoothly. You've mastered the sequence machine! Sprocket cheered.", style: 'celebration' },
 
   // ─── SIMULATE STATION INTROS ─────────────────────────────────────────────
-  { text: "Welcome to Station A — Coin Counter and Register Lab!", style: 'instruction' },
-  { text: "Tap the coins in the tray to build the exact target amount shown. Tap any coin in your purse to remove it. Try using the fewest coins possible!", style: 'instruction' },
-  { text: "Welcome to Station B — Supermarket Scanner and Price Matcher!", style: 'instruction' },
-  { text: "Scan items on the market conveyor, see the prices print on your receipt, and solve the shopping budget challenges!", style: 'instruction' },
-  { text: "Welcome to Station C — The Cashier Change Maker!", style: 'instruction' },
-  { text: "You are the shopkeeper! A customer buys an item and pays with a larger coin or note. Calculate the change and dispense the exact coins from the till drawer!", style: 'instruction' },
-  { text: "Welcome to Station D — Receipt Detective!", style: 'instruction' },
-  { text: "Detective Penny has found receipts with change calculation errors. Inspect the receipt, spot the mistake, and fix the amount!", style: 'instruction' },
+  { text: "Welcome to Station A — The Sequence Machine Lab!", style: 'instruction' },
+  { text: "Set your starting input number and pick your operation gears to see numbers flow through the machine and generate a live sequence!", style: 'instruction' },
+  { text: "Welcome to Station B — Calibrate the Machine!", style: 'instruction' },
+  { text: "Tune the machine's gears and operation values using the plus and minus controls to match the target sequence!", style: 'instruction' },
+  { text: "Welcome to Station C — Reverse Engineer the Machine!", style: 'instruction' },
+  { text: "Inspect the jammed machine's later terms, test candidate operations across consecutive pairs, and step backwards to recover Term 1!", style: 'instruction' },
+  { text: "Welcome to Station D — Spot the Broken Gear!", style: 'instruction' },
+  { text: "Inspect the apprentice's working log, tap the line with the flaw, and select the correct repair!", style: 'instruction' },
 
   // ─── FEEDBACK & HINTS ────────────────────────────────────────────────────
-  { text: "Spot on! That's correct! 🎉", style: 'celebration' },
+  { text: "Spot on! That gear turned perfectly! 🎉", style: 'celebration' },
   { text: "Awesome! Three in a row! ⭐", style: 'celebration' },
-  { text: "Incredible streak! You are unstoppable! 🔥", style: 'celebration' },
-  { text: "Not quite — check the hint, count the coins carefully, and try again! 💡", style: 'thinking' },
-  { text: "Here's your first hint! Look at the biggest coins or dollars first.", style: 'encouragement' },
-  { text: "Here's your final clue! Break down the dollars and cents step by step.", style: 'encouragement' },
+  { text: "Incredible streak! You are in top gear! 🔥", style: 'celebration' },
+  { text: "Not quite — check the hint, test every pair, and try again! 💡", style: 'thinking' },
+  { text: "Here's your first hint! Look at the transition between consecutive terms.", style: 'encouragement' },
+  { text: "Here's your final clue! Remember that a term-to-term rule is an action, not a starting number.", style: 'encouragement' },
 
   // ─── DISTRICT & BOSS BATTLES ─────────────────────────────────────────────
-  { text: "World Complete! Spectacular job on this money district! 🌟", style: 'celebration' },
-  { text: "The Boss Battle begins! Answer correctly to defeat the boss and claim your badge!", style: 'emphasis' },
-  { text: "Victory! You defeated the boss and claimed the World Badge! 👑", style: 'celebration' },
+  { text: "World Complete! Spectacular job on this workshop machine world! 🌟", style: 'celebration' },
+  { text: "The Boss Battle begins! Repair the malfunctioning machine by answering every question correctly!", style: 'emphasis' },
+  { text: "Victory! You repaired the rogue machine and claimed your Workshop Badge! 🛠️", style: 'celebration' },
 
   // ─── REFLECT PHASE ───────────────────────────────────────────────────────
-  { text: "Welcome to the Reflect Phase! Let's review the key money concepts and check your scorecard! 📓", style: 'statement' },
-  { text: "Outstanding! You have mastered money, coins, notes, and making change! You are a true Money Master! 🏆", style: 'celebration' },
+  { text: "Welcome to the Reflect Phase! Let's review the golden rules of term-to-term sequences and check your scorecard! 📓", style: 'statement' },
+  { text: "Outstanding! You have mastered term-to-term rules, compound machines, and reverse engineering! You are a Chief Engineer! 🏆", style: 'celebration' },
 ];
 
 const outputDir = './public/assets/audio';
@@ -136,9 +133,10 @@ async function main() {
     mapping[text] = relativeWebPath;
 
     if (fs.existsSync(destPath)) {
-      console.log(`[${i + 1}/${phrases.length}] ⏩ Skipped (already exists): ${fileName}`);
       continue;
     }
+
+    if (!apiKey) continue;
 
     console.log(`[${i + 1}/${phrases.length}] 🔊 Generating: "${text.substring(0, 40)}..." -> ${fileName}`);
 
@@ -173,10 +171,9 @@ async function main() {
   }
 
   // Write mapping to src/utils/audioMap.js
-  const mapContent = `// Auto-generated by generate_audio.js\n// Static asset mapping for offline generated narration phrases in MoneyQuest\n\nexport const audioMap = ${JSON.stringify(mapping, null, 2)};\n\nexport default audioMap;\n`;
+  const mapContent = `// Auto-generated by generate_audio.js\n// Static asset mapping for offline generated narration phrases in RuleQuest\n\nexport const audioMap = ${JSON.stringify(mapping, null, 2)};\n\nexport default audioMap;\n`;
   fs.writeFileSync('./src/utils/audioMap.js', mapContent);
   console.log("\n✨ Audio mapping updated in src/utils/audioMap.js!");
-  console.log("🎉 Audio generation completed successfully!\n");
 }
 
 main().catch(console.error);
