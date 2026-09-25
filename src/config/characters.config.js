@@ -1,29 +1,29 @@
 // src/config/characters.config.js
 export const CHARACTERS = {
-  oliver: {
-    name: 'Oliver',
-    role: 'Curious 7-year-old exploring the school market with pocket money',
-    emoji: '👦',
-    colour: '#fb923c',
-    mascotEmoji: '💰',
+  zhiHao: {
+    name: "Zhi Hao",
+    role: "The methodical tester — verifies every pair before trusting a rule",
+    emoji: "🧑🏻",
+    colour: "var(--char-1)",
+    mascotEmoji: "🦫",
   },
-  emma: {
-    name: 'Emma',
-    role: 'Friendly, numbers-savvy girl helping Oliver understand prices and change',
-    emoji: '👧',
-    colour: '#f472b6',
-    mascotEmoji: '🏷️',
+  nurul: {
+    name: "Nurul",
+    role: "The quick rule-spotter — intuitive inventor learning not to confuse the first term with the rule",
+    emoji: "👧🏽",
+    colour: "var(--char-2)",
+    mascotEmoji: "🦫",
   },
-  penny: {
-    name: 'Penny the Piggy Bank',
-    role: 'Guide & narrator mascot — explains coins, notes and change rules',
-    emoji: '🐷',
-    colour: '#ffc107',
-    mascotEmoji: '🐷',
+  sprocket: {
+    name: "Sprocket the Beaver",
+    role: "Master Engineer Mascot & mentor — loves reverse-engineering sequence machines",
+    emoji: "🦫",
+    colour: "var(--mascot)",
+    mascotEmoji: "🦫",
   },
 };
 
 export const MASCOT = {
-  name: 'Penny the Piggy Bank',
-  emoji: '🐷',
+  name: "Sprocket the Beaver",
+  emoji: "🦫",
 };

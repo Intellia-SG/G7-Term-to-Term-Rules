@@ -1,0 +1,325 @@
+/* src/components/shared/RuleMachineVisual.css */
+
+.rule-machine-visual {
+  width: 100%;
+  margin: 12px 0 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.rule-machine-visual.compact {
+  margin: 8px 0 12px;
+}
+
+/* Machine Flow & Reverse Flow */
+.flow-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.machine-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.node-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.node-val {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: var(--font-display);
+}
+
+.input-node {
+  border-color: #457B9D;
+  background: rgba(69, 123, 157, 0.2);
+}
+
+.output-node {
+  border-color: #2A9D8F;
+  background: rgba(42, 157, 143, 0.2);
+}
+
+.later-node {
+  border-color: #E76F51;
+  background: rgba(231, 111, 81, 0.2);
+}
+
+.target-node {
+  border-color: #E9C46A;
+  background: rgba(233, 196, 106, 0.2);
+}
+
+.flow-arrow {
+  font-size: 1.4rem;
+  color: #ffc107;
+  font-weight: bold;
+}
+
+.machine-gears-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.machine-gear-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.machine-gear-badge.op-add {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: rgba(76, 175, 80, 0.5);
+}
+
+.machine-gear-badge.op-subtract {
+  background: rgba(239, 83, 80, 0.2);
+  border-color: rgba(239, 83, 80, 0.5);
+}
+
+.machine-gear-badge.op-multiply {
+  background: rgba(255, 193, 7, 0.2);
+  border-color: rgba(255, 193, 7, 0.5);
+}
+
+.machine-gear-badge.op-divide {
+  background: rgba(41, 182, 246, 0.2);
+  border-color: rgba(41, 182, 246, 0.5);
+}
+
+.gear-icon {
+  font-size: 1.3rem;
+  animation: gearSpin 6s linear infinite;
+  display: inline-block;
+}
+
+@keyframes gearSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.gear-desc {
+  display: flex;
+  flex-direction: column;
+}
+
+.gear-step-num {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.gear-op-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.inner-flow-arrow {
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: bold;
+}
+
+/* Reverse Flow specific */
+.reverse-flow-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.reverse-badge {
+  background: rgba(233, 196, 106, 0.25);
+  border: 1px solid #e9c46a;
+  color: #ffe082;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.reverse-note {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.rev-arrow {
+  color: #ff9800;
+}
+
+/* Sequence Strip */
+.strip-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.seq-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 52px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-sm);
+}
+
+.seq-card.seq-target {
+  border-color: var(--color-primary);
+  background: rgba(255, 193, 7, 0.2);
+  box-shadow: 0 0 12px rgba(255, 193, 7, 0.3);
+}
+
+.seq-card.seq-break {
+  border-color: #ef5350;
+  background: rgba(239, 83, 80, 0.2);
+}
+
+.seq-idx {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.seq-val {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: var(--font-display);
+}
+
+.seq-transition {
+  display: flex;
+  align-items: center;
+  padding: 0 2px;
+}
+
+.seq-rule-chip {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffc107;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Fibonacci Pair Visual */
+.fibonacci-title-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.fib-badge {
+  background: rgba(181, 131, 141, 0.3);
+  border: 1px solid #B5838D;
+  color: #f7cad0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.fib-subtitle {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.fib-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow-x: auto;
+}
+
+.fib-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 58px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+}
+
+.fib-cell.contributor {
+  border-color: #B5838D;
+  background: rgba(181, 131, 141, 0.2);
+}
+
+.fib-cell.target {
+  border-color: #ffd166;
+  background: rgba(255, 209, 102, 0.25);
+  box-shadow: 0 0 14px rgba(255, 209, 102, 0.3);
+}
+
+.fib-pos {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.fib-val {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: var(--font-display);
+}
+
+.fib-indicator {
+  font-size: 0.6rem;
+  font-weight: 700;
+  margin-top: 2px;
+  color: #B5838D;
+  text-transform: uppercase;
+}
+
+.fib-indicator.target-tag {
+  color: #ffd166;
+}
